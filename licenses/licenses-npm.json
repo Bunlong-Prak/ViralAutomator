@@ -1,0 +1,848 @@
+{
+    "@babel/generator@8.0.0-rc.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\LICENSE"
+    },
+    "@babel/helper-string-parser@7.29.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\helper-string-parser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\helper-string-parser\\LICENSE"
+    },
+    "@babel/helper-string-parser@8.0.0-rc.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\helper-string-parser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\helper-string-parser\\LICENSE"
+    },
+    "@babel/helper-validator-identifier@7.29.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\helper-validator-identifier",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\helper-validator-identifier\\LICENSE"
+    },
+    "@babel/helper-validator-identifier@8.0.0-rc.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\helper-validator-identifier",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\helper-validator-identifier\\LICENSE"
+    },
+    "@babel/parser@7.29.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\parser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\parser\\LICENSE"
+    },
+    "@babel/parser@8.0.0-rc.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\parser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\parser\\LICENSE"
+    },
+    "@babel/types@7.29.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\types",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\types\\LICENSE"
+    },
+    "@babel/types@8.0.0-rc.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/babel/babel",
+        "publisher": "The Babel Team",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\types",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@babel\\generator\\node_modules\\@babel\\types\\LICENSE"
+    },
+    "@heroicons/vue@2.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/tailwindlabs/heroicons",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@heroicons\\vue",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@heroicons\\vue\\LICENSE"
+    },
+    "@intlify/core-base@11.4.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/intlify/vue-i18n",
+        "publisher": "kazuya kawaguchi",
+        "email": "kawakazu80@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\core-base",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\core-base\\LICENSE"
+    },
+    "@intlify/devtools-types@11.4.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/intlify/vue-i18n",
+        "publisher": "kazuya kawaguchi",
+        "email": "kawakazu80@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\devtools-types",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\devtools-types\\LICENSE"
+    },
+    "@intlify/message-compiler@11.4.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/intlify/vue-i18n",
+        "publisher": "kazuya kawaguchi",
+        "email": "kawakazu80@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\message-compiler",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\message-compiler\\LICENSE"
+    },
+    "@intlify/shared@11.4.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/intlify/vue-i18n",
+        "publisher": "kazuya kawaguchi",
+        "email": "kawakazu80@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\shared",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@intlify\\shared\\LICENSE"
+    },
+    "@jridgewell/gen-mapping@0.3.13": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jridgewell/sourcemaps",
+        "publisher": "Justin Ridgewell",
+        "email": "justin@ridgewell.name",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\gen-mapping",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\gen-mapping\\LICENSE"
+    },
+    "@jridgewell/remapping@2.3.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jridgewell/sourcemaps",
+        "publisher": "Justin Ridgewell",
+        "email": "justin@ridgewell.name",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\remapping",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\remapping\\LICENSE"
+    },
+    "@jridgewell/resolve-uri@3.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jridgewell/resolve-uri",
+        "publisher": "Justin Ridgewell",
+        "email": "justin@ridgewell.name",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\resolve-uri",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\resolve-uri\\LICENSE"
+    },
+    "@jridgewell/sourcemap-codec@1.5.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jridgewell/sourcemaps",
+        "publisher": "Justin Ridgewell",
+        "email": "justin@ridgewell.name",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\sourcemap-codec",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\sourcemap-codec\\LICENSE"
+    },
+    "@jridgewell/trace-mapping@0.3.31": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jridgewell/sourcemaps",
+        "publisher": "Justin Ridgewell",
+        "email": "justin@ridgewell.name",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\trace-mapping",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\trace-mapping\\LICENSE"
+    },
+    "@rolldown/binding-win32-x64-msvc@1.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/rolldown/rolldown",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@rolldown\\binding-win32-x64-msvc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@rolldown\\binding-win32-x64-msvc\\README.md"
+    },
+    "@sentry-internal/browser-utils@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\browser-utils",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\browser-utils\\LICENSE"
+    },
+    "@sentry-internal/feedback@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\feedback",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\feedback\\LICENSE"
+    },
+    "@sentry-internal/replay-canvas@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\replay-canvas",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\replay-canvas\\LICENSE"
+    },
+    "@sentry-internal/replay@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\replay",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry-internal\\replay\\LICENSE"
+    },
+    "@sentry/browser@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\browser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\browser\\LICENSE"
+    },
+    "@sentry/core@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\core",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\core\\LICENSE"
+    },
+    "@sentry/vue@10.54.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/getsentry/sentry-javascript",
+        "publisher": "Sentry",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\vue",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\vue\\LICENSE"
+    },
+    "@tailwindcss/oxide-win32-x64-msvc@4.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/tailwindlabs/tailwindcss",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc\\LICENSE"
+    },
+    "@tauri-apps/api@2.11.0": {
+        "licenses": "Apache-2.0 OR MIT",
+        "repository": "https://github.com/tauri-apps/tauri",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\api",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\api\\README.md"
+    },
+    "@tauri-apps/plugin-autostart@2.5.1": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-autostart",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-autostart\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-clipboard-manager@2.3.2": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-clipboard-manager",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-clipboard-manager\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-dialog@2.7.1": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-dialog",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-dialog\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-global-shortcut@2.3.1": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-global-shortcut",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-global-shortcut\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-opener@2.5.4": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-opener",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-opener\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-shell@2.3.5": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-shell",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-shell\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-store@2.4.3": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-store",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-store\\LICENSE.spdx"
+    },
+    "@tauri-apps/plugin-updater@2.10.1": {
+        "licenses": "MIT OR Apache-2.0",
+        "repository": "https://github.com/tauri-apps/plugins-workspace",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-updater",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tauri-apps\\plugin-updater\\LICENSE.spdx"
+    },
+    "@types/jsesc@2.5.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@types\\jsesc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@types\\jsesc\\LICENSE"
+    },
+    "@vue-macros/common@3.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vue-macros/vue-macros",
+        "publisher": "Kevin Deng",
+        "email": "sxzz@sxzz.moe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue-macros\\common",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue-macros\\common\\LICENSE"
+    },
+    "@vue/compiler-core@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-core",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-core\\LICENSE"
+    },
+    "@vue/compiler-dom@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-dom",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-dom\\LICENSE"
+    },
+    "@vue/compiler-sfc@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-sfc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-sfc\\LICENSE"
+    },
+    "@vue/compiler-ssr@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-ssr",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\compiler-ssr\\LICENSE"
+    },
+    "@vue/devtools-api@6.6.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/vue-devtools",
+        "publisher": "Guillaume Chau",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-i18n\\node_modules\\@vue\\devtools-api"
+    },
+    "@vue/devtools-api@7.7.9": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-api",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-api\\LICENSE"
+    },
+    "@vue/devtools-api@8.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-api",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-api\\LICENSE"
+    },
+    "@vue/devtools-kit@7.7.9": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-kit",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-kit\\LICENSE"
+    },
+    "@vue/devtools-kit@8.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-kit",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-kit\\LICENSE"
+    },
+    "@vue/devtools-shared@7.7.9": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-shared",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\devtools-shared\\LICENSE"
+    },
+    "@vue/devtools-shared@8.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/devtools",
+        "publisher": "webfansplz",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-shared",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\@vue\\devtools-shared\\LICENSE"
+    },
+    "@vue/reactivity@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\reactivity",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\reactivity\\LICENSE"
+    },
+    "@vue/runtime-core@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\runtime-core",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\runtime-core\\LICENSE"
+    },
+    "@vue/runtime-dom@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\runtime-dom",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\runtime-dom\\LICENSE"
+    },
+    "@vue/server-renderer@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\server-renderer",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\server-renderer\\LICENSE"
+    },
+    "@vue/shared@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\shared",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@vue\\shared\\LICENSE"
+    },
+    "acorn@8.16.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/acornjs/acorn",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\acorn",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\acorn\\LICENSE"
+    },
+    "ast-kit@2.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/sxzz/ast-kit",
+        "publisher": "Kevin Deng",
+        "email": "sxzz@sxzz.moe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\ast-kit",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\ast-kit\\LICENSE"
+    },
+    "ast-walker-scope@0.8.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/sxzz/ast-walker-scope",
+        "publisher": "Kevin Deng",
+        "email": "sxzz@sxzz.moe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\ast-walker-scope",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\ast-walker-scope\\LICENSE"
+    },
+    "autoprefixer@10.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/postcss/autoprefixer",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.es",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\autoprefixer",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\autoprefixer\\LICENSE"
+    },
+    "baseline-browser-mapping@2.10.32": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/web-platform-dx/baseline-browser-mapping",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\baseline-browser-mapping",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\baseline-browser-mapping\\LICENSE.txt"
+    },
+    "birpc@2.9.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/antfu-collective/birpc",
+        "publisher": "Anthony Fu",
+        "email": "anthonyfu117@hotmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\birpc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\birpc\\LICENSE"
+    },
+    "browserslist@4.28.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/browserslist/browserslist",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.es",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\browserslist",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\browserslist\\LICENSE"
+    },
+    "caniuse-lite@1.0.30001793": {
+        "licenses": "CC-BY-4.0",
+        "repository": "https://github.com/browserslist/caniuse-lite",
+        "publisher": "Ben Briggs",
+        "email": "beneb.info@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\caniuse-lite",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\caniuse-lite\\LICENSE"
+    },
+    "chokidar@5.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/paulmillr/chokidar",
+        "publisher": "Paul Miller",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\chokidar",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\chokidar\\LICENSE"
+    },
+    "confbox@0.1.8": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/confbox",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly\\node_modules\\confbox",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly\\node_modules\\confbox\\LICENSE"
+    },
+    "confbox@0.2.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/confbox",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\confbox",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\confbox\\LICENSE"
+    },
+    "copy-anything@4.0.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/mesqueeb/copy-anything",
+        "publisher": "Luca Ban - Mesqueeb",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\copy-anything",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\copy-anything\\LICENSE"
+    },
+    "csstype@3.2.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/frenic/csstype",
+        "publisher": "Fredrik Nicol",
+        "email": "fredrik.nicol@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\csstype",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\csstype\\LICENSE"
+    },
+    "electron-to-chromium@1.5.362": {
+        "licenses": "ISC",
+        "repository": "https://github.com/Kilian/electron-to-chromium",
+        "publisher": "Kilian Valkhof",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\electron-to-chromium",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\electron-to-chromium\\LICENSE"
+    },
+    "entities@7.0.1": {
+        "licenses": "BSD-2-Clause",
+        "repository": "https://github.com/fb55/entities",
+        "publisher": "Felix Boehm",
+        "email": "me@feedic.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\entities",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\entities\\LICENSE"
+    },
+    "escalade@3.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lukeed/escalade",
+        "publisher": "Luke Edwards",
+        "email": "luke.edwards05@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\escalade",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\escalade\\license"
+    },
+    "estree-walker@2.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/Rich-Harris/estree-walker",
+        "publisher": "Rich Harris",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\estree-walker",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\estree-walker\\LICENSE"
+    },
+    "exsolve@1.0.8": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/exsolve",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\exsolve",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\exsolve\\LICENSE"
+    },
+    "fdir@6.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/thecodrr/fdir",
+        "publisher": "thecodrr",
+        "email": "thecodrr@protonmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\fdir",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\fdir\\LICENSE"
+    },
+    "fraction.js@5.3.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/rawify/Fraction.js",
+        "publisher": "Robert Eisele",
+        "email": "robert@raw.org",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\fraction.js",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\fraction.js\\LICENSE"
+    },
+    "hookable@5.5.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/hookable",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\hookable",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\hookable\\LICENSE.md"
+    },
+    "is-what@5.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/mesqueeb/is-what",
+        "publisher": "Luca Ban - Mesqueeb",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\is-what",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\is-what\\LICENSE"
+    },
+    "iso-639-1@3.1.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/meikidd/iso-639-1",
+        "publisher": "meikidd",
+        "email": "meikidd@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\iso-639-1",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\iso-639-1\\LICENSE"
+    },
+    "jsesc@3.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/mathiasbynens/jsesc",
+        "publisher": "Mathias Bynens",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\jsesc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\jsesc\\LICENSE-MIT.txt"
+    },
+    "json5@2.2.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/json5/json5",
+        "publisher": "Aseem Kishore",
+        "email": "aseem.kishore@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\json5",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\json5\\LICENSE.md"
+    },
+    "lightningcss-win32-x64-msvc@1.32.0": {
+        "licenses": "MPL-2.0",
+        "repository": "https://github.com/parcel-bundler/lightningcss",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\lightningcss-win32-x64-msvc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\lightningcss-win32-x64-msvc\\LICENSE"
+    },
+    "local-pkg@1.2.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/antfu-collective/local-pkg",
+        "publisher": "Anthony Fu",
+        "email": "anthonyfu117@hotmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\local-pkg",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\local-pkg\\LICENSE"
+    },
+    "magic-string-ast@1.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/sxzz/magic-string-ast",
+        "publisher": "Kevin Deng",
+        "email": "sxzz@sxzz.moe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\magic-string-ast",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\magic-string-ast\\LICENSE"
+    },
+    "magic-string@0.30.21": {
+        "licenses": "MIT",
+        "repository": "https://github.com/Rich-Harris/magic-string",
+        "publisher": "Rich Harris",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\magic-string",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\magic-string\\LICENSE"
+    },
+    "mitt@3.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/developit/mitt",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\mitt",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\mitt\\LICENSE"
+    },
+    "mlly@1.8.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/mlly",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly\\LICENSE"
+    },
+    "muggle-string@0.4.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/johnsoncodehk/muggle-string",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\muggle-string",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\muggle-string\\LICENSE"
+    },
+    "nanoid@3.3.12": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ai/nanoid",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.ru",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\nanoid",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\nanoid\\LICENSE"
+    },
+    "node-releases@2.0.46": {
+        "licenses": "MIT",
+        "repository": "https://github.com/chicoxyzzy/node-releases",
+        "publisher": "Sergey Rubanov",
+        "email": "chi187@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\node-releases",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\node-releases\\LICENSE"
+    },
+    "open-video-downloader@3.2.1": {
+        "licenses": "AGPL-3.0-or-later",
+        "repository": "https://github.com/jely2002/youtube-dl-gui",
+        "path": "D:\\Desktop\\ViralAutomator",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\LICENSE"
+    },
+    "pathe@2.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/pathe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\pathe",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\pathe\\LICENSE"
+    },
+    "perfect-debounce@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/perfect-debounce",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\perfect-debounce",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\perfect-debounce\\LICENSE"
+    },
+    "perfect-debounce@2.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/perfect-debounce",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\perfect-debounce",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\node_modules\\perfect-debounce\\LICENSE"
+    },
+    "picocolors@1.1.1": {
+        "licenses": "ISC",
+        "repository": "https://github.com/alexeyraspopov/picocolors",
+        "publisher": "Alexey Raspopov",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\picocolors",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\picocolors\\LICENSE"
+    },
+    "picomatch@4.0.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/micromatch/picomatch",
+        "publisher": "Jon Schlinkert",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\picomatch",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\picomatch\\LICENSE"
+    },
+    "pinia@3.0.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/pinia",
+        "publisher": "Eduardo San Martin Morote",
+        "email": "posva13@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\pinia",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\pinia\\LICENSE"
+    },
+    "pkg-types@1.3.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/pkg-types",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly\\node_modules\\pkg-types",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\mlly\\node_modules\\pkg-types\\LICENSE"
+    },
+    "pkg-types@2.3.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/pkg-types",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\pkg-types",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\pkg-types\\LICENSE"
+    },
+    "postcss-value-parser@4.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TrySound/postcss-value-parser",
+        "publisher": "Bogdan Chadkin",
+        "email": "trysound@yandex.ru",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\postcss-value-parser",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\postcss-value-parser\\LICENSE"
+    },
+    "postcss@8.5.15": {
+        "licenses": "MIT",
+        "repository": "https://github.com/postcss/postcss",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.es",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\postcss",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\postcss\\LICENSE"
+    },
+    "quansync@0.2.11": {
+        "licenses": "MIT",
+        "repository": "https://github.com/quansync-dev/quansync",
+        "publisher": "Anthony Fu",
+        "email": "anthonyfu117@hotmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\quansync",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\quansync\\LICENSE.md"
+    },
+    "readdirp@5.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/paulmillr/readdirp",
+        "publisher": "Thorsten Lorenz",
+        "email": "thlorenz@gmx.de",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\readdirp",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\readdirp\\LICENSE"
+    },
+    "rfdc@1.4.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/davidmarkclements/rfdc",
+        "publisher": "David Mark Clements",
+        "email": "david.clements@nearform.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\rfdc",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\rfdc\\LICENSE"
+    },
+    "scule@1.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/scule",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\scule",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\scule\\LICENSE"
+    },
+    "source-map-js@1.2.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/7rulnik/source-map-js",
+        "publisher": "Valentin 7rulnik Semirulnik",
+        "email": "v7rulnik@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\source-map-js",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\source-map-js\\LICENSE"
+    },
+    "speakingurl@14.0.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/pid/speakingurl",
+        "publisher": "Sascha Droste",
+        "email": "pid@posteo.net",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\speakingurl",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\speakingurl\\LICENSE"
+    },
+    "superjson@2.2.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/blitz-js/superjson",
+        "publisher": "Simon Knott",
+        "email": "info@simonknott.de",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\superjson",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\superjson\\LICENSE"
+    },
+    "tailwindcss@4.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/tailwindlabs/tailwindcss",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\tailwindcss",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\tailwindcss\\LICENSE"
+    },
+    "tinyglobby@0.2.16": {
+        "licenses": "MIT",
+        "repository": "https://github.com/SuperchupuDev/tinyglobby",
+        "publisher": "Superchupu",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\tinyglobby",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\tinyglobby\\LICENSE"
+    },
+    "typescript@5.9.3": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/microsoft/TypeScript",
+        "publisher": "Microsoft Corp.",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\typescript",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\typescript\\LICENSE.txt"
+    },
+    "ufo@1.6.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/ufo",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\ufo",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\ufo\\LICENSE"
+    },
+    "unplugin-utils@0.3.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/sxzz/unplugin-utils",
+        "publisher": "Kevin Deng",
+        "email": "sxzz@sxzz.moe",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\unplugin-utils",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\unplugin-utils\\LICENSE"
+    },
+    "unplugin@3.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/unjs/unplugin",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\unplugin",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\unplugin\\LICENSE"
+    },
+    "update-browserslist-db@1.2.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/browserslist/update-db",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.ru",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\update-browserslist-db",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\update-browserslist-db\\LICENSE"
+    },
+    "uuid@14.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/uuidjs/uuid",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\uuid",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\uuid\\LICENSE.md"
+    },
+    "vue-i18n@11.4.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/intlify/vue-i18n",
+        "publisher": "kazuya kawaguchi",
+        "email": "kawakazu80@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-i18n",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-i18n\\LICENSE"
+    },
+    "vue-router@5.0.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/router",
+        "publisher": "Eduardo San Martin Morote",
+        "email": "posva13@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue-router\\LICENSE"
+    },
+    "vue@3.5.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\vue",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\vue\\LICENSE"
+    },
+    "webpack-virtual-modules@0.6.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/sysgears/webpack-virtual-modules",
+        "publisher": "SysGears INC",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\webpack-virtual-modules",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\webpack-virtual-modules\\LICENSE"
+    },
+    "yaml@2.9.0": {
+        "licenses": "ISC",
+        "repository": "https://github.com/eemeli/yaml",
+        "publisher": "Eemeli Aro",
+        "email": "eemeli@gmail.com",
+        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\yaml",
+        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\yaml\\LICENSE"
+    }
+}
