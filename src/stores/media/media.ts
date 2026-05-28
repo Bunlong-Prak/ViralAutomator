@@ -27,6 +27,11 @@ export const useMediaStore = defineStore('media', () => {
   function finalizePlaylistGroup(group: Group) {
     const splitThreshold = settingsStore.settings.performance.splitPlaylistThreshold;
     if (group.total < splitThreshold) {
+      const parentOptions = optionsStore.getOptions(group.id);
+      const parentEncodings = optionsStore.getEncodings(group.id);
+      const parentTracks = optionsStore.getTracks(group.id);
+      const parentOverrides = optionsStore.getOverrides(group.id);
+
       const newGroups = groupStore.splitGroup(group);
       void notifyGroup(NotificationKind.PlaylistReady, group, {}, newGroups.length);
       if (newGroups.length === 0) {
@@ -34,8 +39,13 @@ export const useMediaStore = defineStore('media', () => {
         return;
       }
       for (const newGroup of newGroups) {
+        if (parentOptions) optionsStore.setOptions(newGroup.id, JSON.parse(JSON.stringify(parentOptions)));
+        if (parentEncodings) optionsStore.setEncodings(newGroup.id, JSON.parse(JSON.stringify(parentEncodings)));
+        if (parentTracks) optionsStore.setTracks(newGroup.id, JSON.parse(JSON.stringify(parentTracks)));
+        if (parentOverrides) optionsStore.setOverrides(newGroup.id, JSON.parse(JSON.stringify(parentOverrides)));
         stateStore.setGroupState(newGroup.id, MediaState.configure);
       }
+      optionsStore.removeOptions(group.id);
     } else {
       groupStore.consolidateGroup(group);
       void notifyGroup(NotificationKind.PlaylistReady, group, {}, group.entries?.length ?? 1);

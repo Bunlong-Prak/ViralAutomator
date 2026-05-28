@@ -1,19 +1,19 @@
 use crate::logging::LogStoreState;
 use crate::models::download::DownloadSection;
 use crate::models::{
-  MediaDiagnosticPayload, MediaFatalPayload, MediaProgressComplete, ProgressEvent,
-  MediaProgressStage,
+  MediaDiagnosticPayload, MediaFatalPayload, MediaProgressComplete, MediaProgressStage,
+  ProgressEvent,
 };
-use crate::state::config_models::AiSettings;
-use std::path::{Path, PathBuf};
-use tokio::process::Command as TokioCommand;
 use crate::parsers::ytdlp_error::{DiagnosticMatcher, YtdlpErrorParser};
 use crate::parsers::ytdlp_progress::{progress_category_for_track_type, YtdlpProgressParser};
 use crate::runners::ytdlp_runner::{YtdlpCommandEvent, YtdlpRunner};
 use crate::scheduling::download_pipeline::DownloadEntry;
 use crate::scheduling::group_state::subscribe_group;
+use crate::state::config_models::AiSettings;
 use std::fmt;
+use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Emitter, Manager, State};
+use tokio::process::Command as TokioCommand;
 use tokio::sync::watch;
 
 #[derive(Debug)]
@@ -155,12 +155,12 @@ pub async fn run_ytdlp_download(
               if let Some(dest_path) = current_destination {
                 let config_handle = app.state::<crate::SharedConfig>();
                 let config = config_handle.load();
-                
+
                 let uniqueness = entry.overrides.as_ref()
                   .and_then(|o| o.output.as_ref())
                   .and_then(|o| o.video.as_ref())
                   .and_then(|v| v.uniqueness.as_ref());
-                
+
                 let mut uniqueness_config = config.output.video.uniqueness.clone();
                 if let Some(u) = uniqueness {
                   if let Some(enabled) = u.enabled { uniqueness_config.enabled = enabled; }
@@ -172,6 +172,9 @@ pub async fn run_ytdlp_download(
                   if let Some(provider) = u.caption_provider.as_ref() { uniqueness_config.caption_provider = provider.clone(); }
                   if let Some(ai_shorts) = u.ai_shorts_mode { uniqueness_config.ai_shorts_mode = ai_shorts; }
                   if let Some(num) = u.num_shorts { uniqueness_config.num_shorts = num; }
+                  if let Some(dubbing) = u.dubbing_enabled { uniqueness_config.dubbing_enabled = dubbing; }
+                  if let Some(target) = u.target_language.as_ref() { uniqueness_config.target_language = target.clone(); }
+                  if let Some(voice) = u.voice_clone_id.as_ref() { uniqueness_config.voice_clone_id = voice.clone(); }
                 }
 
                 if uniqueness_config.ai_shorts_mode && !config.ai.deepseek_api_key.is_empty() {
@@ -180,7 +183,7 @@ pub async fn run_ytdlp_download(
                         group_id: entry.group_id.clone(),
                         stage: crate::models::ProgressStage::Finalizing,
                     });
-                    
+
                     if let Err(e) = run_ai_shorts_extraction(&app, &dest_path, &config.ai, &uniqueness_config).await {
                         tracing::error!("AI Shorts extraction failed: {}", e);
                     }
@@ -191,7 +194,7 @@ pub async fn run_ytdlp_download(
                             group_id: entry.group_id.clone(),
                             stage: crate::models::ProgressStage::Finalizing,
                         });
-                        
+
                         if let Err(e) = run_ai_captions(&app, &dest_path, &config.ai, &uniqueness_config).await {
                             tracing::error!("AI Captions failed: {}", e);
                         }
@@ -204,7 +207,7 @@ pub async fn run_ytdlp_download(
                          } else {
                              "".to_string()
                          };
-                         
+
                          if !transcript.is_empty() {
                             if let Err(e) = crate::ai::dubbing::run_ai_dubbing(&app, Path::new(&dest_path), &transcript, &config.ai, &uniqueness_config).await {
                                 tracing::error!("Dubbing failed: {}", e);
@@ -298,7 +301,11 @@ fn store_log_line(
   store.append_line(app, &entry.group_id, line);
 }
 
-fn parse_progress_line(line: &str, progress_parser: &mut YtdlpProgressParser, app: &AppHandle) -> Option<ProgressEvent> {
+fn parse_progress_line(
+  line: &str,
+  progress_parser: &mut YtdlpProgressParser,
+  app: &AppHandle,
+) -> Option<ProgressEvent> {
   let progress_events = progress_parser.parse_line(line);
   let mut destination = None;
 
@@ -358,10 +365,10 @@ fn parse_clock_secs(value: &str) -> Option<f64> {
 }
 
 async fn run_ai_shorts_extraction(
-  app: &AppHandle, 
-  dest_path: &str, 
-  ai: &AiSettings, 
-  uniqueness: &crate::state::config_models::UniquenessSettings
+  app: &AppHandle,
+  dest_path: &str,
+  ai: &AiSettings,
+  uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<(), String> {
   let paths_manager = app.state::<crate::paths::PathsManager>();
   let bin_dir = paths_manager.bin_dir();
@@ -372,18 +379,22 @@ async fn run_ai_shorts_extraction(
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3");
   let srt_path = video_path.with_extension("srt");
-  
+
   // 1. Extract audio for transcription
   let _ = TokioCommand::new("ffmpeg")
     .env("PATH", &new_path)
     .args(&[
-      "-i", dest_path,
+      "-i",
+      dest_path,
       "-vn",
-      "-ar", "16000",
-      "-ac", "1",
-      "-c:a", "libmp3lame",
+      "-ar",
+      "16000",
+      "-ac",
+      "1",
+      "-c:a",
+      "libmp3lame",
       audio_path.to_str().ok_or("Invalid audio path")?,
-      "-y"
+      "-y",
     ])
     .status()
     .await;
@@ -394,36 +405,59 @@ async fn run_ai_shorts_extraction(
   } else {
     crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
   };
-  tokio::fs::write(&srt_path, &srt_content).await.map_err(|e| e.to_string())?;
+  tokio::fs::write(&srt_path, &srt_content)
+    .await
+    .map_err(|e| e.to_string())?;
 
   // 3. Identify segments using Deepseek
-  let segments = crate::ai::shorts::identify_viral_segments(&ai.deepseek_api_key, &srt_content, uniqueness.num_shorts).await?;
-  
+  let segments = crate::ai::shorts::identify_viral_segments(
+    &ai.deepseek_api_key,
+    &srt_content,
+    uniqueness.num_shorts,
+  )
+  .await?;
+
   // 4. Extract and process each segment
   for (i, segment) in segments.iter().enumerate() {
-    let output_name = format!("{}_short_{}.mp4", video_path.file_stem().unwrap().to_str().unwrap(), i + 1);
+    let output_name = format!(
+      "{}_short_{}.mp4",
+      video_path.file_stem().unwrap().to_str().unwrap(),
+      i + 1
+    );
     let output_path = video_path.parent().unwrap().join(output_name);
-    
+
     // Create segment-specific SRT (simplified: just use the full SRT, FFmpeg subtitles filter handles timestamps)
     // For vertical crop: crop=ih*(9/16):ih
     let mut filters = vec!["crop=ih*(9/16):ih".to_string()];
     if uniqueness.flip_horizontal {
-        filters.push("hflip".to_string());
+      filters.push("hflip".to_string());
     }
-    
-    let escaped_srt = srt_path.to_str().unwrap().replace("\\", "/").replace(":", "\\:");
-    filters.push(format!("subtitles='{}':force_style='{}'", escaped_srt, ai.caption_style));
-    
+
+    let escaped_srt = srt_path
+      .to_str()
+      .unwrap()
+      .replace("\\", "/")
+      .replace(":", "\\:");
+    filters.push(format!(
+      "subtitles='{}':force_style='{}'",
+      escaped_srt, ai.caption_style
+    ));
+
     let filter_chain = filters.join(",");
 
     let args = vec![
-      "-ss".to_string(), segment.start_time.clone(),
-      "-to".to_string(), segment.end_time.clone(),
-      "-i".to_string(), dest_path.to_string(),
-      "-vf".to_string(), filter_chain,
-      "-c:a".to_string(), "copy".to_string(),
+      "-ss".to_string(),
+      segment.start_time.clone(),
+      "-to".to_string(),
+      segment.end_time.clone(),
+      "-i".to_string(),
+      dest_path.to_string(),
+      "-vf".to_string(),
+      filter_chain,
+      "-c:a".to_string(),
+      "copy".to_string(),
       output_path.to_str().unwrap().to_string(),
-      "-y".to_string()
+      "-y".to_string(),
     ];
 
     let _ = TokioCommand::new("ffmpeg")
@@ -434,7 +468,9 @@ async fn run_ai_shorts_extraction(
 
     // Optional: If dubbing is enabled, dub each short
     if uniqueness.dubbing_enabled && !ai.deepseek_api_key.is_empty() {
-        let _ = crate::ai::dubbing::run_ai_dubbing(&app, &output_path, &srt_content, &ai, &uniqueness).await;
+      let _ =
+        crate::ai::dubbing::run_ai_dubbing(&app, &output_path, &srt_content, &ai, &uniqueness)
+          .await;
     }
   }
 
@@ -446,10 +482,10 @@ async fn run_ai_shorts_extraction(
 }
 
 async fn run_ai_transcription(
-  app: &AppHandle, 
-  dest_path: &str, 
-  ai: &AiSettings, 
-  uniqueness: &crate::state::config_models::UniquenessSettings
+  app: &AppHandle,
+  dest_path: &str,
+  ai: &AiSettings,
+  uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<String, String> {
   let paths_manager = app.state::<crate::paths::PathsManager>();
   let bin_dir = paths_manager.bin_dir();
@@ -459,10 +495,22 @@ async fn run_ai_transcription(
 
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3_tmp");
-  
+
   let _ = TokioCommand::new("ffmpeg")
     .env("PATH", &new_path)
-    .args(&["-i", dest_path, "-vn", "-ar", "16000", "-ac", "1", "-c:a", "libmp3lame", audio_path.to_str().unwrap(), "-y"])
+    .args(&[
+      "-i",
+      dest_path,
+      "-vn",
+      "-ar",
+      "16000",
+      "-ac",
+      "1",
+      "-c:a",
+      "libmp3lame",
+      audio_path.to_str().unwrap(),
+      "-y",
+    ])
     .status()
     .await;
 
@@ -471,16 +519,16 @@ async fn run_ai_transcription(
   } else {
     crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
   };
-  
+
   let _ = tokio::fs::remove_file(audio_path).await;
   Ok(srt_content)
 }
 
 async fn run_ai_captions(
-  app: &AppHandle, 
-  dest_path: &str, 
-  ai: &AiSettings, 
-  uniqueness: &crate::state::config_models::UniquenessSettings
+  app: &AppHandle,
+  dest_path: &str,
+  ai: &AiSettings,
+  uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<(), String> {
   let paths_manager = app.state::<crate::paths::PathsManager>();
   let bin_dir = paths_manager.bin_dir();
@@ -491,23 +539,27 @@ async fn run_ai_captions(
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3");
   let srt_path = video_path.with_extension("srt");
-  
+
   // 1. Extract audio
   let status = TokioCommand::new("ffmpeg")
     .env("PATH", &new_path)
     .args(&[
-      "-i", dest_path,
+      "-i",
+      dest_path,
       "-vn",
-      "-ar", "16000",
-      "-ac", "1",
-      "-c:a", "libmp3lame",
+      "-ar",
+      "16000",
+      "-ac",
+      "1",
+      "-c:a",
+      "libmp3lame",
       audio_path.to_str().ok_or("Invalid audio path")?,
-      "-y"
+      "-y",
     ])
     .status()
     .await
     .map_err(|e| format!("FFmpeg extract failed: {}", e))?;
-    
+
   if !status.success() {
     return Err("FFmpeg extract failed".to_string());
   }
@@ -518,22 +570,34 @@ async fn run_ai_captions(
   } else {
     crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
   };
-  tokio::fs::write(&srt_path, srt_content).await.map_err(|e| e.to_string())?;
+  tokio::fs::write(&srt_path, srt_content)
+    .await
+    .map_err(|e| e.to_string())?;
 
   // 3. Burn captions
   let final_path = video_path.with_extension("final.mp4");
   // Escape for FFmpeg subtitles filter
-  let escaped_srt = srt_path.to_str().unwrap().replace("\\", "/").replace(":", "\\:");
-  let filter = format!("subtitles='{}':force_style='{}'", escaped_srt, ai.caption_style);
-  
+  let escaped_srt = srt_path
+    .to_str()
+    .unwrap()
+    .replace("\\", "/")
+    .replace(":", "\\:");
+  let filter = format!(
+    "subtitles='{}':force_style='{}'",
+    escaped_srt, ai.caption_style
+  );
+
   let status = TokioCommand::new("ffmpeg")
     .env("PATH", &new_path)
     .args(&[
-      "-i", dest_path,
-      "-vf", &filter,
-      "-c:a", "copy",
+      "-i",
+      dest_path,
+      "-vf",
+      &filter,
+      "-c:a",
+      "copy",
       final_path.to_str().ok_or("Invalid final path")?,
-      "-y"
+      "-y",
     ])
     .status()
     .await
@@ -543,7 +607,7 @@ async fn run_ai_captions(
     // Replace original with final
     let _ = tokio::fs::rename(final_path, video_path).await;
   }
-  
+
   // Cleanup
   let _ = tokio::fs::remove_file(audio_path).await;
   let _ = tokio::fs::remove_file(srt_path).await;

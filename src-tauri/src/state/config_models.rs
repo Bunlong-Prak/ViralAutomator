@@ -353,7 +353,9 @@ impl Default for AiSettings {
       openai_api_key: String::new(),
       groq_api_key: String::new(),
       deepseek_api_key: String::new(),
-      caption_style: "Alignment=10,FontSize=20,PrimaryColour=&H00FFFF,OutlineColour=&H000000,BorderStyle=3".into(),
+      caption_style:
+        "Alignment=10,FontSize=20,PrimaryColour=&H00FFFF,OutlineColour=&H000000,BorderStyle=3"
+          .into(),
       voxcpm_api_url: "http://localhost:8000".into(),
     }
   }

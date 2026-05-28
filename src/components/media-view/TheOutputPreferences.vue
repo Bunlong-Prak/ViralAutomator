@@ -186,8 +186,14 @@ function createDefaultSelectionState(): PartialDownloadSelection {
 
 function pickChangedFields<T extends Record<string, unknown>>(current: T, base: T): Partial<T> {
   return (Object.keys(current) as Array<keyof T>).reduce((changed, key) => {
-    if (current[key] !== base[key]) {
-      changed[key] = current[key];
+    const valCurrent = current[key];
+    const valBase = base[key];
+    if (typeof valCurrent === 'object' && valCurrent !== null && typeof valBase === 'object' && valBase !== null) {
+      if (JSON.stringify(valCurrent) !== JSON.stringify(valBase)) {
+        changed[key] = valCurrent;
+      }
+    } else if (valCurrent !== valBase) {
+      changed[key] = valCurrent;
     }
     return changed;
   }, {} as Partial<T>);

@@ -67,6 +67,12 @@ impl ApplyPatch<UniquenessSettings> for UniquenessOverrides {
     apply_clone_patch!(self, target, watermark_text);
     apply_copy_patch!(self, target, ai_captions);
     apply_copy_patch!(self, target, ai_metadata);
+    apply_clone_patch!(self, target, caption_provider);
+    apply_copy_patch!(self, target, ai_shorts_mode);
+    apply_copy_patch!(self, target, num_shorts);
+    apply_copy_patch!(self, target, dubbing_enabled);
+    apply_clone_patch!(self, target, target_language);
+    apply_clone_patch!(self, target, voice_clone_id);
   }
 }
 
@@ -182,6 +188,7 @@ mod tests {
         postprocess_preset: Some(VideoPostprocessPreset::Fps30),
         custom_postprocess_mode: Some(VideoPostprocessMode::Reencode),
         postprocess_args: Some("-vf fps=30".into()),
+        uniqueness: None,
       }),
       add_thumbnail: Some(false),
       save_thumbnail: Some(true),

@@ -257,7 +257,7 @@ fn resolve_video_postprocess_plan(
       filters.push("hflip".to_string());
     }
     if video.uniqueness.auto_crop {
-      filters.push("crop=iw*0.9:ih*0.9".to_string());
+      filters.push("crop=ih*9/16:ih".to_string());
     }
     if !video.uniqueness.watermark_text.is_empty() {
       let escaped_text = video.uniqueness.watermark_text.replace('\'', "\\'");
