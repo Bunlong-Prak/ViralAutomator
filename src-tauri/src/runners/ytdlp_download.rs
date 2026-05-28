@@ -198,6 +198,15 @@ pub async fn run_ytdlp_download(
                         if let Err(e) = run_ai_captions(&app, &dest_path, &config.ai, &uniqueness_config).await {
                             tracing::error!("AI Captions failed: {}", e);
                         }
+                    } else if uniqueness_config.enabled {
+                        let _ = app.emit("media_progress_stage", MediaProgressStage {
+                            id: entry.id.clone(),
+                            group_id: entry.group_id.clone(),
+                            stage: crate::models::ProgressStage::Finalizing,
+                        });
+                        if let Err(e) = run_basic_uniqueness(&app, &dest_path, &uniqueness_config).await {
+                            tracing::error!("Basic Uniqueness failed: {}", e);
+                        }
                     }
 
                     if uniqueness_config.dubbing_enabled && !config.ai.deepseek_api_key.is_empty() {
@@ -582,10 +591,27 @@ async fn run_ai_captions(
     .unwrap()
     .replace("\\", "/")
     .replace(":", "\\:");
-  let filter = format!(
+
+  let mut filters = vec![];
+  if uniqueness.auto_crop {
+    filters.push("crop=ih*(9/16):ih".to_string());
+  }
+  if uniqueness.flip_horizontal {
+    filters.push("hflip".to_string());
+  }
+  filters.push(format!(
     "subtitles='{}':force_style='{}'",
     escaped_srt, ai.caption_style
-  );
+  ));
+  if !uniqueness.watermark_text.is_empty() {
+    let escaped_text = uniqueness.watermark_text.replace('\'', "\\'");
+    filters.push(format!(
+      "drawtext=text='{}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-th-20",
+      escaped_text
+    ));
+  }
+
+  let filter_chain = filters.join(",");
 
   let status = TokioCommand::new("ffmpeg")
     .env("PATH", &new_path)
@@ -593,7 +619,7 @@ async fn run_ai_captions(
       "-i",
       dest_path,
       "-vf",
-      &filter,
+      &filter_chain,
       "-c:a",
       "copy",
       final_path.to_str().ok_or("Invalid final path")?,
@@ -612,5 +638,61 @@ async fn run_ai_captions(
   let _ = tokio::fs::remove_file(audio_path).await;
   let _ = tokio::fs::remove_file(srt_path).await;
 
+  Ok(())
+}
+
+async fn run_basic_uniqueness(
+  app: &AppHandle,
+  dest_path: &str,
+  uniqueness: &crate::state::config_models::UniquenessSettings,
+) -> Result<(), String> {
+  let mut filters = vec![];
+  if uniqueness.auto_crop {
+    filters.push("crop=ih*(9/16):ih".to_string());
+  }
+  if uniqueness.flip_horizontal {
+    filters.push("hflip".to_string());
+  }
+  if !uniqueness.watermark_text.is_empty() {
+    let escaped_text = uniqueness.watermark_text.replace('\'', "\\'");
+    filters.push(format!(
+      "drawtext=text='{}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-th-20",
+      escaped_text
+    ));
+  }
+
+  if filters.is_empty() {
+    return Ok(());
+  }
+  let filter_chain = filters.join(",");
+
+  let paths_manager = app.state::<crate::paths::PathsManager>();
+  let bin_dir = paths_manager.bin_dir();
+  let separator = if cfg!(windows) { ';' } else { ':' };
+  let path_env = std::env::var("PATH").unwrap_or_default();
+  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
+
+  let video_path = std::path::PathBuf::from(dest_path);
+  let final_path = video_path.with_extension("uniqueness.mp4");
+
+  let status = tokio::process::Command::new("ffmpeg")
+    .env("PATH", &new_path)
+    .args(&[
+      "-i",
+      dest_path,
+      "-vf",
+      &filter_chain,
+      "-c:a",
+      "copy",
+      final_path.to_str().ok_or("Invalid final path")?,
+      "-y",
+    ])
+    .status()
+    .await
+    .map_err(|e| format!("FFmpeg uniqueness failed: {}", e))?;
+
+  if status.success() {
+    let _ = tokio::fs::rename(final_path, video_path).await;
+  }
   Ok(())
 }

@@ -246,48 +246,6 @@ fn resolve_video_postprocess_plan(
     }
   };
 
-  if video.uniqueness.enabled {
-    ensure_video_reencode_allowed(
-      video,
-      "Uniqueness features require re-encoding. Disable Keep original streams to use them.",
-    )?;
-
-    let mut filters = Vec::new();
-    if video.uniqueness.flip_horizontal {
-      filters.push("hflip".to_string());
-    }
-    if video.uniqueness.auto_crop {
-      filters.push("crop=ih*9/16:ih".to_string());
-    }
-    if !video.uniqueness.watermark_text.is_empty() {
-      let escaped_text = video.uniqueness.watermark_text.replace('\'', "\\'");
-      filters.push(format!(
-        "drawtext=text='{}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-th-20",
-        escaped_text
-      ));
-    }
-
-    if !filters.is_empty() {
-      plan.operation = VideoPostprocessOperation::Reencode;
-      let filter_str = filters.join(",");
-
-      let new_args = match plan.postprocessor_args {
-        Some(args) => {
-          let stripped = args
-            .replace("VideoRemuxer+ffmpeg:", "")
-            .replace("VideoConvertor+ffmpeg:", "");
-          if stripped.contains("-vf") {
-            args.replace("-vf ", &format!("-vf {},", filter_str))
-          } else {
-            format!("VideoConvertor+ffmpeg:{} -vf \"{}\"", stripped, filter_str)
-          }
-        }
-        None => format!("VideoConvertor+ffmpeg:-vf \"{}\"", filter_str),
-      };
-      plan.postprocessor_args = Some(new_args);
-    }
-  }
-
   Ok(plan)
 }
 
