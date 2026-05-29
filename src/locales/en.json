@@ -673,6 +673,34 @@
           "watermark": {
             "label": "Watermark text:",
             "hint": "Add a text watermark to the video."
+          },
+          "splitScreen": {
+            "label": "Split-Screen Gameplay",
+            "hint": "Merge video with local gameplay footage to bypass hash detection."
+          },
+          "splitScreenPath": {
+            "label": "Gameplay Video Path:",
+            "hint": "Absolute path to a background video file."
+          },
+          "microSpeed": {
+            "label": "Micro-Speed Variations",
+            "hint": "Dynamically alter video/audio speed to break fingerprinting."
+          },
+          "aiHookRewriting": {
+            "label": "AI Hook Rewriting",
+            "hint": "Rewrite the first 3 seconds of the transcript to be highly engaging."
+          },
+          "backgroundAudio": {
+            "label": "Background Audio Overlay",
+            "hint": "Add background lo-fi or trending audio at 10% volume."
+          },
+          "backgroundAudioPath": {
+            "label": "Background Audio Path:",
+            "hint": "Absolute path to an audio file."
+          },
+          "autoPost": {
+            "label": "Headless Auto-Posting",
+            "hint": "Automatically upload the final video to YouTube Shorts."
           }
         }
       }

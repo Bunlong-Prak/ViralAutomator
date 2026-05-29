@@ -29,12 +29,16 @@ pub async fn run_ai_dubbing(
   let client = Client::new();
 
   // 1. Translate the transcript line-by-line or in blocks using Deepseek
-  let translation_prompt = format!(
+  let mut translation_prompt = format!(
         "You are a professional translator. Translate the following English transcript into natural, high-impact {}, \
         optimized for viral social media content. Maintain the tone and slang. \
         Return ONLY the translated text, preserving the structure for line-by-line matching.",
         uniqueness.target_language
     );
+
+  if uniqueness.ai_hook_rewriting {
+    translation_prompt.push_str(" CRITICAL: Completely rewrite the FIRST sentence/hook to be overwhelmingly engaging, controversial, or curiosity-inducing. It must stop scrollers instantly. Only rewrite the first 3 seconds, keep the rest as direct translation.");
+  }
 
   let translated_text = crate::ai::deepseek::generate_translation(
     &ai.deepseek_api_key,

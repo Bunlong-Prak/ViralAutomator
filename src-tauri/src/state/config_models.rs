@@ -118,6 +118,13 @@ pub struct UniquenessSettings {
   pub dubbing_enabled: bool,
   pub target_language: String,
   pub voice_clone_id: String,
+  pub split_screen_enabled: bool,
+  pub split_screen_video_path: String,
+  pub micro_speed_enabled: bool,
+  pub ai_hook_rewriting: bool,
+  pub background_audio_enabled: bool,
+  pub background_audio_path: String,
+  pub auto_post_enabled: bool,
 }
 
 impl Default for UniquenessSettings {
@@ -135,6 +142,13 @@ impl Default for UniquenessSettings {
       dubbing_enabled: false,
       target_language: "en-US".into(),
       voice_clone_id: String::new(),
+      split_screen_enabled: false,
+      split_screen_video_path: String::new(),
+      micro_speed_enabled: false,
+      ai_hook_rewriting: false,
+      background_audio_enabled: false,
+      background_audio_path: String::new(),
+      auto_post_enabled: false,
     }
   }
 }

@@ -54,6 +54,13 @@ export interface UniquenessSettings {
   dubbingEnabled: boolean;
   targetLanguage: string;
   voiceCloneId: string;
+  splitScreenEnabled: boolean;
+  splitScreenVideoPath: string;
+  microSpeedEnabled: boolean;
+  aiHookRewriting: boolean;
+  backgroundAudioEnabled: boolean;
+  backgroundAudioPath: string;
+  autoPostEnabled: boolean;
 }
 
 export interface AudioOutputSettings {
@@ -214,6 +221,13 @@ export const defaultOutputSettings: OutputSettings = {
       dubbingEnabled: false,
       targetLanguage: 'en-US',
       voiceCloneId: '',
+      splitScreenEnabled: false,
+      splitScreenVideoPath: '',
+      microSpeedEnabled: false,
+      aiHookRewriting: false,
+      backgroundAudioEnabled: false,
+      backgroundAudioPath: '',
+      autoPostEnabled: false,
     },
   },
   audio: {

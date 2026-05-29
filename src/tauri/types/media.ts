@@ -110,6 +110,13 @@ export type UniquenessOverrides = {
   dubbingEnabled?: boolean;
   targetLanguage?: string;
   voiceCloneId?: string;
+  splitScreenEnabled?: boolean;
+  splitScreenVideoPath?: string;
+  microSpeedEnabled?: boolean;
+  aiHookRewriting?: boolean;
+  backgroundAudioEnabled?: boolean;
+  backgroundAudioPath?: string;
+  autoPostEnabled?: boolean;
 };
 
 export type Section = {
