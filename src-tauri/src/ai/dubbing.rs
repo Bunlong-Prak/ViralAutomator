@@ -103,10 +103,15 @@ pub async fn run_ai_dubbing(
   let output_path = video_path.with_extension("final_dubbed.mp4");
 
   // FFmpeg command to replace audio and apply atempo to match durations if needed
-  // Simplified: replaces audio stream
-  let status = TokioCommand::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
-    .args(&[
+    .args([
       "-i",
       video_path.to_str().unwrap(),
       "-i",

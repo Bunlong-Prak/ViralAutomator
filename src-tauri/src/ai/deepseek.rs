@@ -68,7 +68,7 @@ pub async fn generate_metadata(
 
   let content = data
     .choices
-    .get(0)
+    .first()
     .ok_or("No choices returned")?
     .message
     .content
@@ -134,7 +134,7 @@ pub async fn generate_translation(
   Ok(
     data
       .choices
-      .get(0)
+      .first()
       .ok_or("No choices returned")?
       .message
       .content

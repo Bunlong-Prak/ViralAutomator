@@ -1,12 +1,7 @@
 use reqwest::multipart;
-use serde::{Deserialize, Serialize};
+
 use std::path::Path;
 use tokio::fs;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TranscriptionResponse {
-  pub text: String,
-}
 
 pub async fn transcribe_audio(api_key: &str, audio_path: &Path) -> Result<String, String> {
   let client = reqwest::Client::new();

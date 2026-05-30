@@ -412,9 +412,15 @@ async fn run_ai_shorts_extraction(
   let srt_path = video_path.with_extension("srt");
 
   // 1. Extract audio for transcription
-  let _ = TokioCommand::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let _ = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
-    .args(&[
+    .args([
       "-i",
       dest_path,
       "-vn",
@@ -491,7 +497,13 @@ async fn run_ai_shorts_extraction(
       "-y".to_string(),
     ];
 
-    let _ = TokioCommand::new("ffmpeg")
+    let ffmpeg_exe = if cfg!(windows) {
+      "ffmpeg.exe"
+    } else {
+      "ffmpeg"
+    };
+    let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+    let _ = TokioCommand::new(&ffmpeg_path)
       .env("PATH", &new_path)
       .args(&args)
       .status()
@@ -500,8 +512,7 @@ async fn run_ai_shorts_extraction(
     // Optional: If dubbing is enabled, dub each short
     if uniqueness.dubbing_enabled && !ai.deepseek_api_key.is_empty() {
       let _ =
-        crate::ai::dubbing::run_ai_dubbing(&app, &output_path, &srt_content, &ai, &uniqueness)
-          .await;
+        crate::ai::dubbing::run_ai_dubbing(app, &output_path, &srt_content, ai, uniqueness).await;
     }
   }
 
@@ -527,9 +538,15 @@ async fn run_ai_transcription(
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3_tmp");
 
-  let _ = TokioCommand::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let _ = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
-    .args(&[
+    .args([
       "-i",
       dest_path,
       "-vn",
@@ -572,9 +589,15 @@ async fn run_ai_captions(
   let srt_path = video_path.with_extension("srt");
 
   // 1. Extract audio
-  let status = TokioCommand::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
-    .args(&[
+    .args([
       "-i",
       dest_path,
       "-vn",
@@ -615,7 +638,13 @@ async fn run_ai_captions(
     Some(&ai.caption_style),
   );
 
-  let status = TokioCommand::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args(&args)
     .status()
@@ -656,7 +685,13 @@ async fn run_basic_uniqueness(
     None,
   );
 
-  let status = tokio::process::Command::new("ffmpeg")
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+  let status = tokio::process::Command::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args(&args)
     .status()
@@ -753,7 +788,6 @@ fn build_advanced_ffmpeg_args(
       audio_in, current_input_idx
     ));
     audio_in = "a_mixed".to_string();
-    current_input_idx += 1;
     has_complex = true;
     has_audio_filter = true;
   }

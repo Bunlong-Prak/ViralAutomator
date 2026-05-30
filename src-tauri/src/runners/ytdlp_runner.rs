@@ -336,7 +336,13 @@ impl<'a> YtdlpRunner<'a> {
     let separator = if cfg!(windows) { ';' } else { ':' };
     let path_env = std::env::var("PATH").unwrap_or_default();
     let new_path = format!("{}{}{}", self.bin_dir.display(), separator, path_env);
-    let mut command = Command::new("yt-dlp");
+    let exe_name = if cfg!(windows) {
+      "yt-dlp.exe"
+    } else {
+      "yt-dlp"
+    };
+    let exe_path = self.bin_dir.join(exe_name);
+    let mut command = Command::new(exe_path);
     command.args(&self.args).env("PATH", new_path);
     command
   }

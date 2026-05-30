@@ -181,7 +181,7 @@ fn resolve_video_postprocess_plan(
     TranscodePolicy::AllowReencode => VideoPostprocessOperation::Remux,
   };
 
-  let mut plan = match video.postprocess_preset {
+  let plan = match video.postprocess_preset {
     VideoPostprocessPreset::None => VideoPostprocessPlan {
       operation: base_operation,
       container: match base_operation {

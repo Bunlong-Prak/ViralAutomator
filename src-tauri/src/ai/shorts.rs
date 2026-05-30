@@ -96,7 +96,7 @@ pub async fn identify_viral_segments(
 
   let content = data
     .choices
-    .get(0)
+    .first()
     .ok_or("No response from Deepseek")?
     .message
     .content

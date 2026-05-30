@@ -140,12 +140,6 @@
         "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\trace-mapping",
         "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@jridgewell\\trace-mapping\\LICENSE"
     },
-    "@rolldown/binding-win32-x64-msvc@1.0.3": {
-        "licenses": "MIT",
-        "repository": "https://github.com/rolldown/rolldown",
-        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@rolldown\\binding-win32-x64-msvc",
-        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@rolldown\\binding-win32-x64-msvc\\README.md"
-    },
     "@sentry-internal/browser-utils@10.54.0": {
         "licenses": "MIT",
         "repository": "https://github.com/getsentry/sentry-javascript",
@@ -194,12 +188,6 @@
         "publisher": "Sentry",
         "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\vue",
         "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@sentry\\vue\\LICENSE"
-    },
-    "@tailwindcss/oxide-win32-x64-msvc@4.3.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/tailwindlabs/tailwindcss",
-        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc",
-        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc\\LICENSE"
     },
     "@tauri-apps/api@2.11.0": {
         "licenses": "Apache-2.0 OR MIT",
@@ -561,12 +549,6 @@
         "email": "aseem.kishore@gmail.com",
         "path": "D:\\Desktop\\ViralAutomator\\node_modules\\json5",
         "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\json5\\LICENSE.md"
-    },
-    "lightningcss-win32-x64-msvc@1.32.0": {
-        "licenses": "MPL-2.0",
-        "repository": "https://github.com/parcel-bundler/lightningcss",
-        "path": "D:\\Desktop\\ViralAutomator\\node_modules\\lightningcss-win32-x64-msvc",
-        "licenseFile": "D:\\Desktop\\ViralAutomator\\node_modules\\lightningcss-win32-x64-msvc\\LICENSE"
     },
     "local-pkg@1.2.1": {
         "licenses": "MIT",
