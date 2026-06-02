@@ -717,8 +717,8 @@
         "hint": "Cheap/Free high-speed Whisper transcription."
       },
       "deepseek": {
-        "label": "Deepseek API Key:",
-        "hint": "Used for metadata generation (titles & descriptions)."
+        "label": "Deepseek / Groq API Key:",
+        "hint": "Used for metadata generation (titles & descriptions). Groq is supported for free models."
       },
       "captionStyle": {
         "label": "Caption Style (ASS):",

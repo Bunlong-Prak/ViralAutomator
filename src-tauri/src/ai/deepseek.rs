@@ -33,8 +33,17 @@ pub async fn generate_metadata(
         original_title
     );
 
+  let (endpoint, model_name) = if api_key.starts_with("gsk_") {
+    (
+      "https://api.groq.com/openai/v1/chat/completions",
+      "llama-3.3-70b-versatile",
+    )
+  } else {
+    ("https://api.deepseek.com/chat/completions", "deepseek-chat")
+  };
+
   let request = DeepseekRequest {
-    model: "deepseek-chat".to_string(),
+    model: model_name.to_string(),
     messages: vec![
       Message {
         role: "system".to_string(),
@@ -48,7 +57,7 @@ pub async fn generate_metadata(
   };
 
   let response = client
-    .post("https://api.deepseek.com/v1/chat/completions")
+    .post(endpoint)
     .header("Authorization", format!("Bearer {}", api_key))
     .json(&request)
     .send()
@@ -98,8 +107,17 @@ pub async fn generate_translation(
 ) -> Result<String, String> {
   let client = reqwest::Client::new();
 
+  let (endpoint, model_name) = if api_key.starts_with("gsk_") {
+    (
+      "https://api.groq.com/openai/v1/chat/completions",
+      "llama-3.3-70b-versatile",
+    )
+  } else {
+    ("https://api.deepseek.com/chat/completions", "deepseek-chat")
+  };
+
   let request = DeepseekRequest {
-    model: "deepseek-chat".to_string(),
+    model: model_name.to_string(),
     messages: vec![
       Message {
         role: "system".to_string(),
@@ -113,7 +131,7 @@ pub async fn generate_translation(
   };
 
   let response = client
-    .post("https://api.deepseek.com/v1/chat/completions")
+    .post(endpoint)
     .header("Authorization", format!("Bearer {}", api_key))
     .json(&request)
     .send()

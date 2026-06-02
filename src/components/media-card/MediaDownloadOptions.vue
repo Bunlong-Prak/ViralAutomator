@@ -153,12 +153,20 @@ const BEST_AUDIO_FORMAT: MediaFormat = Object.freeze({
   videoTrackIds: [],
 });
 
+const BEST_VIDEO_FORMAT: MediaFormat = Object.freeze({
+  id: 'best',
+  audioCodecs: [],
+  videoCodecs: [],
+  audioTrackIds: [],
+  videoTrackIds: [],
+});
+
 const formatsByTrackType = computed<Record<TrackType, MediaFormat[]>>(() => {
   const list = formats.value ?? [];
   return {
     [TrackType.audio]: [BEST_AUDIO_FORMAT, ...sortFormats(list.filter(f => f.abr))],
-    [TrackType.video]: sortFormats(list.filter(f => f.height)),
-    [TrackType.both]: sortFormats(list.filter(f => f.height)),
+    [TrackType.video]: [BEST_VIDEO_FORMAT, ...sortFormats(list.filter(f => f.height))],
+    [TrackType.both]: [BEST_VIDEO_FORMAT, ...sortFormats(list.filter(f => f.height))],
   };
 });
 
@@ -293,6 +301,9 @@ function matchByDownloadOptions(options: DownloadOptions): MediaFormat | undefin
       = (formats.value ?? []).find(f => f.abr === options.abr)
         || (approximate.value ? approxAudio(filteredFormats.value, options.abr) : undefined);
   } else {
+    if (!options.height && !options.fps) {
+      return BEST_VIDEO_FORMAT;
+    }
     match
       = (formats.value ?? []).find(f => f.height === options.height && f.fps === options.fps)
         || (approximate.value ? approxVideo(filteredFormats.value, options.height, options.fps) : undefined);
@@ -310,6 +321,9 @@ function getFormatLabel(format: MediaFormat, trackType: TrackType): string {
     case TrackType.video:
     case TrackType.both:
     default:
+      if (format.id === 'best') {
+        return i18n.t('common.best');
+      }
       return format.fps
         ? `${format.height}p${format.fps}`
         : `${format.height}p`;

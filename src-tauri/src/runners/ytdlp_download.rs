@@ -186,9 +186,19 @@ pub async fn run_ytdlp_download(
 
                     if let Err(e) = run_ai_shorts_extraction(&app, &dest_path, &config.ai, &uniqueness_config).await {
                         tracing::error!("AI Shorts extraction failed: {}", e);
+                        return Err(YtdlpDownloadError::RunnerError(format!("AI Shorts extraction failed: {}", e)));
                     }
                 } else {
-                    if uniqueness_config.ai_captions && !config.ai.openai_api_key.is_empty() {
+                    let has_valid_caption_key = if uniqueness_config.caption_provider == "groq" {
+                        !config.ai.groq_api_key.is_empty() || (!config.ai.deepseek_api_key.is_empty() && config.ai.deepseek_api_key.starts_with("gsk_"))
+                    } else {
+                        !config.ai.openai_api_key.is_empty()
+                    };
+
+                    if uniqueness_config.ai_captions {
+                        if !has_valid_caption_key {
+                            return Err(YtdlpDownloadError::RunnerError(format!("AI Captions is enabled, but the API key for '{}' is missing.", uniqueness_config.caption_provider)));
+                        }
                         let _ = app.emit("media_progress_stage", MediaProgressStage {
                             id: entry.id.clone(),
                             group_id: entry.group_id.clone(),
@@ -197,6 +207,7 @@ pub async fn run_ytdlp_download(
 
                         if let Err(e) = run_ai_captions(&app, &dest_path, &config.ai, &uniqueness_config).await {
                             tracing::error!("AI Captions failed: {}", e);
+                            return Err(YtdlpDownloadError::RunnerError(format!("AI Captions failed: {}", e)));
                         }
                     } else if uniqueness_config.enabled {
                         let _ = app.emit("media_progress_stage", MediaProgressStage {
@@ -206,6 +217,7 @@ pub async fn run_ytdlp_download(
                         });
                         if let Err(e) = run_basic_uniqueness(&app, &dest_path, &uniqueness_config).await {
                             tracing::error!("Basic Uniqueness failed: {}", e);
+                            return Err(YtdlpDownloadError::RunnerError(format!("Basic Uniqueness failed: {}", e)));
                         }
                     }
 
@@ -220,6 +232,7 @@ pub async fn run_ytdlp_download(
                          if !transcript.is_empty() {
                             if let Err(e) = crate::ai::dubbing::run_ai_dubbing(&app, Path::new(&dest_path), &transcript, &config.ai, &uniqueness_config).await {
                                 tracing::error!("Dubbing failed: {}", e);
+                                return Err(YtdlpDownloadError::RunnerError(format!("Dubbing failed: {}", e)));
                             }
                          }
                     }
@@ -620,7 +633,12 @@ async fn run_ai_captions(
 
   // 2. Transcribe
   let srt_content = if uniqueness.caption_provider == "groq" {
-    crate::ai::groq::transcribe_audio(&ai.groq_api_key, &audio_path).await?
+    let key = if !ai.groq_api_key.is_empty() {
+      &ai.groq_api_key
+    } else {
+      &ai.deepseek_api_key // Fallback to Deepseek field if it contains a Groq key
+    };
+    crate::ai::groq::transcribe_audio(key, &audio_path).await?
   } else {
     crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
   };
