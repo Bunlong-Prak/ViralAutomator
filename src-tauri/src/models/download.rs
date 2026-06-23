@@ -171,6 +171,13 @@ pub struct UniquenessOverrides {
   pub dubbing_enabled: Option<bool>,
   pub target_language: Option<String>,
   pub voice_clone_id: Option<String>,
+  pub split_screen_enabled: Option<bool>,
+  pub split_screen_video_path: Option<String>,
+  pub micro_speed_enabled: Option<bool>,
+  pub ai_hook_rewriting: Option<bool>,
+  pub background_audio_enabled: Option<bool>,
+  pub background_audio_path: Option<String>,
+  pub auto_post_enabled: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]

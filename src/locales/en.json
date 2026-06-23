@@ -716,6 +716,10 @@
         "label": "Groq API Key:",
         "hint": "Cheap/Free high-speed Whisper transcription."
       },
+      "gemini": {
+        "label": "Google Gemini API Key:",
+        "hint": "Fast and free transcription via gemini-flash-lite."
+      },
       "deepseek": {
         "label": "Deepseek / Groq API Key:",
         "hint": "Used for metadata generation (titles & descriptions). Groq is supported for free models."

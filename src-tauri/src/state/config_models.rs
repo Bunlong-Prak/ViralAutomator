@@ -357,6 +357,7 @@ pub struct AiSettings {
   pub openai_api_key: String,
   pub groq_api_key: String,
   pub deepseek_api_key: String,
+  pub gemini_api_key: String,
   pub caption_style: String,
   pub voxcpm_api_url: String,
 }
@@ -367,6 +368,7 @@ impl Default for AiSettings {
       openai_api_key: String::new(),
       groq_api_key: String::new(),
       deepseek_api_key: String::new(),
+      gemini_api_key: String::new(),
       caption_style:
         "Alignment=10,FontSize=20,PrimaryColour=&H00FFFF,OutlineColour=&H000000,BorderStyle=3"
           .into(),

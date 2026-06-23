@@ -3,3 +3,4 @@ pub mod dubbing;
 pub mod groq;
 pub mod openai;
 pub mod shorts;
+pub mod gemini;

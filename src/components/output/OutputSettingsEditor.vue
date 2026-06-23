@@ -204,6 +204,7 @@
             >
               <option value="openai">OpenAI (Whisper)</option>
               <option value="groq">Groq (Whisper - Fast/Free)</option>
+              <option value="gemini">Google Gemini (Fast/Free)</option>
             </select>
           </div>
 

@@ -158,6 +158,7 @@ export interface AiSettings {
   openaiApiKey: string;
   groqApiKey: string;
   deepseekApiKey: string;
+  geminiApiKey: string;
   captionStyle: string;
   voxcpmApiUrl: string;
 }
@@ -287,6 +288,7 @@ export const defaultAiSettings: AiSettings = {
   openaiApiKey: '',
   groqApiKey: '',
   deepseekApiKey: '',
+  geminiApiKey: '',
   captionStyle: 'Alignment=10,FontSize=20,PrimaryColour=&H00FFFF,OutlineColour=&H000000,BorderStyle=3',
   voxcpmApiUrl: 'http://localhost:8000',
 };

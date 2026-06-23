@@ -38,6 +38,17 @@
       </div>
 
       <div class="flex flex-col gap-1">
+        <label class="font-semibold" for="gemini-api-key">
+          {{ t('settings.ai.gemini.label') }}
+        </label>
+        <base-secret-input
+            id="gemini-api-key"
+            v-model="aiState.geminiApiKey"
+            :placeholder="t('settings.ai.gemini.hint')"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
         <label class="font-semibold" for="caption-style">
           {{ t('settings.ai.captionStyle.label') }}
         </label>
