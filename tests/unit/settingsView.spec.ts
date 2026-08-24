@@ -6,6 +6,7 @@ import SettingsView from '../../src/views/app/SettingsView.vue';
 import SettingsDownloadsTab from '../../src/views/app/settings/SettingsDownloadsTab.vue';
 import SettingsAppTab from '../../src/views/app/settings/SettingsAppTab.vue';
 import SettingsNetworkTab from '../../src/views/app/settings/SettingsNetworkTab.vue';
+import SettingsAiTab from '../../src/views/app/settings/SettingsAiTab.vue';
 import SettingsSystemTab from '../../src/views/app/settings/SettingsSystemTab.vue';
 import SettingsAboutTab from '../../src/views/app/settings/SettingsAboutTab.vue';
 import { i18n } from '../../src/i18n';
@@ -106,6 +107,11 @@ function createSettingsRouter() {
                 component: SettingsNetworkTab,
               },
               {
+                path: 'ai',
+                name: 'settings.ai',
+                component: SettingsAiTab,
+              },
+              {
                 path: 'system',
                 name: 'settings.system',
                 component: SettingsSystemTab,
@@ -143,6 +149,7 @@ describe('SettingsView', () => {
       'Downloads',
       'App',
       'Network',
+      'AI',
       'System',
       'About',
     ]);

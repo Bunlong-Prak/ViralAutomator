@@ -646,7 +646,12 @@
             "hint": "Automatically transcribe audio and burn subtitles onto the video."
           },
           "captionProvider": {
-            "label": "Caption Provider:"
+            "label": "Caption Provider:",
+            "options": {
+              "openai": "OpenAI (Whisper)",
+              "groq": "Groq (Whisper - Fast/Free)",
+              "gemini": "Google Gemini (Fast/Free)"
+            }
           },
           "aiMetadata": {
             "label": "AI Metadata generator",
@@ -664,7 +669,21 @@
             "hint": "Translate and dub the video into a different language using high-fidelity AI."
           },
           "targetLanguage": {
-            "label": "Target language:"
+            "label": "Target language:",
+            "options": {
+              "enUS": "English (United States)",
+              "enGB": "English (United Kingdom)",
+              "kmKH": "Khmer (Cambodia)",
+              "zhCN": "Chinese (Mandarin)",
+              "esES": "Spanish",
+              "frFR": "French",
+              "deDE": "German",
+              "jaJP": "Japanese",
+              "koKR": "Korean",
+              "viVN": "Vietnamese",
+              "thTH": "Thai",
+              "idID": "Indonesian"
+            }
           },
           "voiceCloneId": {
             "label": "Voice clone ID:",

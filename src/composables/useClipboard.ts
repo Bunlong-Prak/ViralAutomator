@@ -11,7 +11,9 @@ export interface UseClipboardResponse {
   poll: () => void;
 }
 
-export function useClipboard(options: UseClipboardOptions): UseClipboardResponse {
+export function useClipboard(
+  options: UseClipboardOptions,
+): UseClipboardResponse {
   const { interval = 1000 } = options;
 
   const content = ref<string | null>(null);
@@ -19,14 +21,17 @@ export function useClipboard(options: UseClipboardOptions): UseClipboardResponse
   let running = false;
 
   function pollOnce(): void {
-    readText().then((text) => {
-      if (text !== content.value) {
-        content.value = text;
-      }
-    }).catch((e) => {
-      if (e.includes('clipboard is empty')) return;
-      console.error('Failed to read clipboard:', e);
-    });
+    readText()
+      .then((text) => {
+        if (text !== content.value) {
+          content.value = text;
+        }
+      })
+      .catch((e) => {
+        const message = e instanceof Error ? e.message : String(e);
+        if (message.includes('clipboard is empty')) return;
+        console.error('Failed to read clipboard:', e);
+      });
   }
 
   function start() {

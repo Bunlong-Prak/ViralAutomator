@@ -185,10 +185,10 @@ pub async fn run_ytdlp_download(
                 }
 
                 if uniqueness_config.enabled {
-                    let is_audio_only = dest_path.ends_with(".mp3") 
-                        || dest_path.ends_with(".m4a") 
-                        || dest_path.ends_with(".wav") 
-                        || dest_path.ends_with(".aac") 
+                    let is_audio_only = dest_path.ends_with(".mp3")
+                        || dest_path.ends_with(".m4a")
+                        || dest_path.ends_with(".wav")
+                        || dest_path.ends_with(".aac")
                         || dest_path.ends_with(".flac");
 
                     if is_audio_only {
@@ -425,20 +425,24 @@ fn parse_clock_secs(value: &str) -> Option<f64> {
   Some(total)
 }
 
-fn validate_uniqueness_files(
-  uniqueness: &mut crate::state::config_models::UniquenessSettings,
-) {
+fn validate_uniqueness_files(uniqueness: &mut crate::state::config_models::UniquenessSettings) {
   if uniqueness.background_audio_enabled && !uniqueness.background_audio_path.is_empty() {
     let path = Path::new(&uniqueness.background_audio_path);
     if !path.exists() {
-      tracing::warn!("Background audio file not found: {}, disabling background audio.", uniqueness.background_audio_path);
+      tracing::warn!(
+        "Background audio file not found: {}, disabling background audio.",
+        uniqueness.background_audio_path
+      );
       uniqueness.background_audio_enabled = false;
     }
   }
   if uniqueness.split_screen_enabled && !uniqueness.split_screen_video_path.is_empty() {
     let path = Path::new(&uniqueness.split_screen_video_path);
     if !path.exists() {
-      tracing::warn!("Split-screen gameplay video file not found: {}, disabling split-screen.", uniqueness.split_screen_video_path);
+      tracing::warn!(
+        "Split-screen gameplay video file not found: {}, disabling split-screen.",
+        uniqueness.split_screen_video_path
+      );
       uniqueness.split_screen_enabled = false;
     }
   }
@@ -622,7 +626,14 @@ async fn run_ai_transcription(
     .await;
 
   let srt_content = if uniqueness.caption_provider == "groq" {
-    crate::ai::groq::transcribe_audio(&ai.groq_api_key, &audio_path).await?
+    let key = if !ai.groq_api_key.is_empty() {
+      &ai.groq_api_key
+    } else {
+      &ai.deepseek_api_key // Fallback to Deepseek field if it contains a Groq key
+    };
+    crate::ai::groq::transcribe_audio(key, &audio_path).await?
+  } else if uniqueness.caption_provider == "gemini" {
+    crate::ai::gemini::transcribe_audio(&ai.gemini_api_key, &audio_path).await?
   } else {
     crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
   };

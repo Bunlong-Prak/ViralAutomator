@@ -32,7 +32,8 @@ pub async fn run_ai_dubbing(
   let mut translation_prompt = format!(
         "You are a professional translator. Translate the following English transcript into natural, high-impact {}, \
         optimized for viral social media content. Maintain the tone and slang. \
-        Return ONLY the translated text, preserving the structure for line-by-line matching.",
+        Return ONLY the translated text, preserving the structure for line-by-line matching. \
+        DO NOT wrap the output in markdown code blocks. DO NOT add any conversational text or formatting.",
         uniqueness.target_language
     );
 

@@ -102,21 +102,30 @@ pub async fn identify_viral_segments(
     .content
     .clone();
 
-  // The model might wrap the array in an object if forced to json_object, or just return the array.
-  // We try to find the array.
-  let segments: Vec<VideoSegment> = if content.trim().starts_with('{') {
-    let v: serde_json::Value = serde_json::from_str(&content).map_err(|e| e.to_string())?;
-    if let Some(arr) = v
-      .get("segments")
-      .or_else(|| v.as_object().and_then(|m| m.values().next()))
-      .and_then(|v| v.as_array())
-    {
-      serde_json::from_value(serde_json::Value::Array(arr.clone())).map_err(|e| e.to_string())?
-    } else {
-      return Err("Could not find segments array in JSON response".to_string());
-    }
+  // Deepseek's json_object format guarantees valid JSON, but sometimes wraps it in markdown.
+  let mut clean_json = content.trim();
+  if let Some(stripped) = clean_json.strip_prefix("```json") {
+    clean_json = stripped.trim();
+  } else if let Some(stripped) = clean_json.strip_prefix("```") {
+    clean_json = stripped.trim();
+  }
+  if let Some(stripped) = clean_json.strip_suffix("```") {
+    clean_json = stripped.trim();
+  }
+
+  let v: serde_json::Value =
+    serde_json::from_str(clean_json).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+  let segments: Vec<VideoSegment> = if let Some(arr) = v
+    .get("segments")
+    .or_else(|| v.as_object().and_then(|m| m.values().next()))
+    .and_then(|v| v.as_array())
+  {
+    serde_json::from_value(serde_json::Value::Array(arr.clone())).map_err(|e| e.to_string())?
+  } else if let Some(arr) = v.as_array() {
+    serde_json::from_value(serde_json::Value::Array(arr.clone())).map_err(|e| e.to_string())?
   } else {
-    serde_json::from_str(&content).map_err(|e| e.to_string())?
+    return Err("Could not find segments array in JSON response".to_string());
   };
 
   Ok(segments)

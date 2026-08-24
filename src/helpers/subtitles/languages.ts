@@ -8,11 +8,22 @@ export interface SubtitleLanguageOption {
 
 const codes = ISO6391.getAllCodes();
 const expanded_codes: Record<string, SubtitleLanguageOption> = {
-  'pt-BR': { code: 'pt-BR', englishName: 'Portuguese (Brazil)', nativeName: 'Português (Brasil)' },
-  'zh-TW': { code: 'zh-TW', englishName: 'Traditional Chinese (Taiwan)', nativeName: '繁體中文（台灣）' },
+  'pt-BR': {
+    code: 'pt-BR',
+    englishName: 'Portuguese (Brazil)',
+    nativeName: 'Português (Brasil)',
+  },
+  'zh-TW': {
+    code: 'zh-TW',
+    englishName: 'Traditional Chinese (Taiwan)',
+    nativeName: '繁體中文（台灣）',
+  },
 };
 
-export const languageOptions: SubtitleLanguageOption[] = [...codes, ...Object.keys(expanded_codes)]
+export const languageOptions: SubtitleLanguageOption[] = [
+  ...codes,
+  ...Object.keys(expanded_codes),
+]
   .map((code) => {
     if (expanded_codes[code]) return expanded_codes[code];
 
@@ -41,8 +52,9 @@ export function getSubtitleLanguageLabel(code: string): string {
   const lower = normalized.toLowerCase();
   const isOrig = lower.endsWith('-orig');
   const base = isOrig ? normalized.slice(0, -5) : normalized;
-  const exact = languageOptionsLookup.get(base)
-    || languageOptionsLookup.get(base.toLowerCase());
+  const exact
+    = languageOptionsLookup.get(base)
+      || languageOptionsLookup.get(base.toLowerCase());
   const label = exact?.englishName ?? normalized.toUpperCase();
 
   return isOrig ? `${label} (Original audio)` : label;
@@ -58,7 +70,9 @@ export function getPreferredAutoSubtitleLanguages(codes: string[]): string[] {
     const normalized = trimmed.replace('_', '-');
     const lower = normalized.toLowerCase();
     const isOrig = lower.endsWith('-orig');
-    const base = (isOrig ? normalized.slice(0, -5) : normalized).toLowerCase();
+    const base = (
+      isOrig ? normalized.slice(0, -5) : normalized
+    ).toLowerCase();
     const existing = groups.get(base) ?? {};
 
     if (isOrig) existing.orig = lower;
@@ -77,7 +91,11 @@ export function getPreferredAutoSubtitleLanguages(codes: string[]): string[] {
 }
 
 export function detectBrowserLanguageCodes(): string[] {
-  let candidates = navigator?.languages ?? [];
+  if (typeof navigator === 'undefined') {
+    return [];
+  }
+
+  let candidates = navigator.languages ?? [];
   if (candidates.length === 0) {
     candidates = [navigator.language];
   }

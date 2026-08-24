@@ -1,488 +1,818 @@
 <template>
-  <div class="flex flex-col">
-    <base-tabbed-pane
-        v-model="activeTab"
-        :tabs="tabs"
-        :id-prefix="tabIdPrefix"
-    >
-      <template #video>
-        <h2 class="sr-only">
-          {{ t('settings.output.tabs.video.screenreader') }}
-        </h2>
+    <div class="flex flex-col">
+        <base-tabbed-pane
+            v-model="activeTab"
+            :tabs="tabs"
+            :id-prefix="tabIdPrefix"
+        >
+            <template #video>
+                <h2 class="sr-only">
+                    {{ t("settings.output.tabs.video.screenreader") }}
+                </h2>
 
-        <base-select
-            :label="t('settings.output.tabs.video.container.label')"
-            :hint="t('settings.output.tabs.video.container.hint')"
-            :options="VideoContainer"
-            :locale-key="'settings.output.tabs.video.container.options'"
-            v-model="outputState.video.container"
-            class="mb-4"
-        />
+                <base-select
+                    :label="t('settings.output.tabs.video.container.label')"
+                    :hint="t('settings.output.tabs.video.container.hint')"
+                    :options="VideoContainer"
+                    :locale-key="'settings.output.tabs.video.container.options'"
+                    v-model="outputState.video.container"
+                    class="mb-4"
+                />
 
-        <div class="mb-4 flex flex-col gap-1">
-          <label class="font-semibold" :for="fieldId('keep-original-streams-video')">
-            {{ t('settings.output.keepOriginalStreams.label') }}
-          </label>
-          <input
-              :id="fieldId('keep-original-streams-video')"
-              type="checkbox"
-              v-model="keepOriginalStreamsVideo"
-              class="toggle toggle-primary my-1"
-          />
-          <p class="label">
-            {{ t('settings.output.keepOriginalStreams.hint') }}
-          </p>
+                <div class="mb-4 flex flex-col gap-1">
+                    <label
+                        class="font-semibold"
+                        :for="fieldId('keep-original-streams-video')"
+                    >
+                        {{ t("settings.output.keepOriginalStreams.label") }}
+                    </label>
+                    <input
+                        :id="fieldId('keep-original-streams-video')"
+                        type="checkbox"
+                        v-model="keepOriginalStreamsVideo"
+                        class="toggle toggle-primary my-1"
+                    />
+                    <p class="label">
+                        {{ t("settings.output.keepOriginalStreams.hint") }}
+                    </p>
+                </div>
+
+                <base-select
+                    :label="t('settings.output.postprocess.label')"
+                    :hint="postprocessHint"
+                    :options="VideoPostprocessPreset"
+                    :locale-key="'settings.output.postprocess.options'"
+                    v-model="outputState.video.postprocessPreset"
+                />
+
+                <base-select
+                    v-if="showVideoPostprocessMode"
+                    :label="t('settings.output.postprocessMode.label')"
+                    :hint="t('settings.output.postprocessMode.hint')"
+                    :options="VideoPostprocessMode"
+                    :locale-key="'settings.output.postprocessMode.options'"
+                    v-model="outputState.video.customPostprocessMode"
+                    class="mt-4"
+                />
+
+                <template v-if="showVideoPostprocessArgs">
+                    <label
+                        class="mb-2 mt-4 font-semibold"
+                        :for="fieldId('video-postprocess-args')"
+                    >
+                        {{ t("settings.output.postprocessArgs.label") }}
+                    </label>
+                    <textarea
+                        :id="fieldId('video-postprocess-args')"
+                        v-model="outputState.video.postprocessArgs"
+                        class="textarea rounded-xl w-full"
+                        rows="3"
+                        :placeholder="t('settings.output.postprocessArgs.hint')"
+                    />
+                </template>
+
+                <p
+                    v-if="showMp42ContainerConflict"
+                    class="alert alert-error mt-2 alert-soft"
+                >
+                    {{ t("settings.output.postprocess.mp42RequiresMp4") }}
+                </p>
+
+                <p
+                    v-else-if="showKeepOriginalStreamsConflict"
+                    class="alert alert-error mt-2 alert-soft"
+                >
+                    {{
+                        t(
+                            "settings.output.postprocess.keepOriginalStreamsConflict",
+                        )
+                    }}
+                </p>
+
+                <p
+                    v-if="showReencodeWarning"
+                    class="alert alert-warning mt-2 alert-soft"
+                >
+                    {{ t("settings.output.postprocess.reencodeWarning") }}
+                </p>
+
+                <slot name="video-extra" />
+            </template>
+
+            <template #audio>
+                <h2 class="sr-only">
+                    {{ t("settings.output.tabs.audio.screenreader") }}
+                </h2>
+
+                <base-select
+                    :label="t('settings.output.tabs.audio.format.label')"
+                    :hint="t('settings.output.tabs.audio.format.hint')"
+                    :options="AudioFormat"
+                    :locale-key="'settings.output.tabs.audio.format.options'"
+                    v-model="outputState.audio.format"
+                    class="mb-4"
+                />
+
+                <div class="mb-4 flex flex-col gap-1">
+                    <label
+                        class="font-semibold"
+                        :for="fieldId('keep-original-streams-audio')"
+                    >
+                        {{ t("settings.output.keepOriginalStreams.label") }}
+                    </label>
+                    <input
+                        :id="fieldId('keep-original-streams-audio')"
+                        type="checkbox"
+                        v-model="keepOriginalStreamsAudio"
+                        class="toggle toggle-primary my-1"
+                    />
+                    <p class="label">
+                        {{ t("settings.output.keepOriginalStreams.hint") }}
+                    </p>
+                </div>
+
+                <base-select
+                    :label="t('settings.output.tabs.audio.postprocess.label')"
+                    :hint="t('settings.output.postprocess.hint')"
+                    :options="AudioPostprocessPreset"
+                    :locale-key="'settings.output.tabs.audio.postprocess.options'"
+                    v-model="outputState.audio.postprocessPreset"
+                />
+
+                <template v-if="showAudioPostprocessArgs">
+                    <label
+                        class="mb-2 mt-4 font-semibold"
+                        :for="fieldId('audio-postprocess-args')"
+                    >
+                        {{ t("settings.output.postprocessArgs.label") }}
+                    </label>
+                    <textarea
+                        :id="fieldId('audio-postprocess-args')"
+                        v-model="outputState.audio.postprocessArgs"
+                        class="textarea rounded-xl w-full"
+                        rows="3"
+                        :placeholder="t('settings.output.postprocessArgs.hint')"
+                    />
+                </template>
+
+                <slot name="audio-extra" />
+            </template>
+
+            <template #uniqueness>
+                <h2 class="sr-only">
+                    {{ t("settings.output.tabs.uniqueness.screenreader") }}
+                </h2>
+
+                <div class="mb-4 flex flex-col gap-1">
+                    <label
+                        class="font-semibold"
+                        :for="fieldId('uniqueness-enabled')"
+                    >
+                        {{ t("settings.output.tabs.uniqueness.enabled.label") }}
+                    </label>
+                    <input
+                        :id="fieldId('uniqueness-enabled')"
+                        type="checkbox"
+                        v-model="outputState.video.uniqueness.enabled"
+                        class="toggle toggle-primary my-1"
+                    />
+                    <p class="label">
+                        {{ t("settings.output.tabs.uniqueness.enabled.hint") }}
+                    </p>
+                </div>
+
+                <template v-if="outputState.video.uniqueness.enabled">
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-flip')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.flip.label")
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-flip')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.flipHorizontal
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-crop')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.crop.label")
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-crop')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.autoCrop"
+                            class="toggle toggle-primary my-1"
+                        />
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-ai-captions')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiCaptions.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-ai-captions')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.aiCaptions"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiCaptions.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="outputState.video.uniqueness.aiCaptions"
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-caption-provider')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.captionProvider.label",
+                                )
+                            }}
+                        </label>
+                        <select
+                            :id="fieldId('uniqueness-caption-provider')"
+                            v-model="
+                                outputState.video.uniqueness.captionProvider
+                            "
+                            class="select select-bordered rounded-xl w-full"
+                        >
+                            <option value="openai">
+                                {{
+                                    t(
+                                        "settings.output.tabs.uniqueness.captionProvider.options.openai",
+                                    )
+                                }}
+                            </option>
+                            <option value="groq">
+                                {{
+                                    t(
+                                        "settings.output.tabs.uniqueness.captionProvider.options.groq",
+                                    )
+                                }}
+                            </option>
+                            <option value="gemini">
+                                {{
+                                    t(
+                                        "settings.output.tabs.uniqueness.captionProvider.options.gemini",
+                                    )
+                                }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-ai-metadata')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiMetadata.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-ai-metadata')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.aiMetadata"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiMetadata.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-ai-shorts')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiShortsMode.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-ai-shorts')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.aiShortsMode"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiShortsMode.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="outputState.video.uniqueness.aiShortsMode"
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-num-shorts')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.numShorts.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-num-shorts')"
+                            type="number"
+                            v-model="outputState.video.uniqueness.numShorts"
+                            min="1"
+                            max="10"
+                            class="input input-bordered rounded-xl w-full"
+                        />
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-dubbing')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.dubbing.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-dubbing')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.dubbingEnabled
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.dubbing.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <template
+                        v-if="outputState.video.uniqueness.dubbingEnabled"
+                    >
+                        <div class="mb-4 flex flex-col gap-1">
+                            <label
+                                class="font-semibold"
+                                :for="fieldId('uniqueness-target-language')"
+                            >
+                                {{
+                                    t(
+                                        "settings.output.tabs.uniqueness.targetLanguage.label",
+                                    )
+                                }}
+                            </label>
+                            <select
+                                :id="fieldId('uniqueness-target-language')"
+                                v-model="
+                                    outputState.video.uniqueness.targetLanguage
+                                "
+                                class="select select-bordered rounded-xl w-full"
+                            >
+                                <option value="en-US">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.enUS",
+                                        )
+                                    }}
+                                </option>
+                                <option value="en-GB">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.enGB",
+                                        )
+                                    }}
+                                </option>
+                                <option value="km-KH">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.kmKH",
+                                        )
+                                    }}
+                                </option>
+                                <option value="zh-CN">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.zhCN",
+                                        )
+                                    }}
+                                </option>
+                                <option value="es-ES">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.esES",
+                                        )
+                                    }}
+                                </option>
+                                <option value="fr-FR">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.frFR",
+                                        )
+                                    }}
+                                </option>
+                                <option value="de-DE">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.deDE",
+                                        )
+                                    }}
+                                </option>
+                                <option value="ja-JP">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.jaJP",
+                                        )
+                                    }}
+                                </option>
+                                <option value="ko-KR">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.koKR",
+                                        )
+                                    }}
+                                </option>
+                                <option value="vi-VN">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.viVN",
+                                        )
+                                    }}
+                                </option>
+                                <option value="th-TH">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.thTH",
+                                        )
+                                    }}
+                                </option>
+                                <option value="id-ID">
+                                    {{
+                                        t(
+                                            "settings.output.tabs.uniqueness.targetLanguage.options.idID",
+                                        )
+                                    }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4 flex flex-col gap-1">
+                            <label
+                                class="font-semibold"
+                                :for="fieldId('uniqueness-voice-id')"
+                            >
+                                {{
+                                    t(
+                                        "settings.output.tabs.uniqueness.voiceCloneId.label",
+                                    )
+                                }}
+                            </label>
+                            <input
+                                :id="fieldId('uniqueness-voice-id')"
+                                type="text"
+                                v-model="
+                                    outputState.video.uniqueness.voiceCloneId
+                                "
+                                class="input input-bordered rounded-xl w-full"
+                                :placeholder="
+                                    t(
+                                        'settings.output.tabs.uniqueness.voiceCloneId.hint',
+                                    )
+                                "
+                            />
+                        </div>
+                    </template>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-split-screen')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.splitScreen.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-split-screen')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.splitScreenEnabled
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.splitScreen.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="outputState.video.uniqueness.splitScreenEnabled"
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-split-screen-path')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.splitScreenPath.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-split-screen-path')"
+                            type="text"
+                            v-model="
+                                outputState.video.uniqueness
+                                    .splitScreenVideoPath
+                            "
+                            class="input input-bordered rounded-xl w-full"
+                            :placeholder="
+                                t(
+                                    'settings.output.tabs.uniqueness.splitScreenPath.hint',
+                                )
+                            "
+                        />
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-micro-speed')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.microSpeed.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-micro-speed')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.microSpeedEnabled
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.microSpeed.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-ai-hook-rewriting')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiHookRewriting.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-ai-hook-rewriting')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.aiHookRewriting
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.aiHookRewriting.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-background-audio')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.backgroundAudio.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-background-audio')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness
+                                    .backgroundAudioEnabled
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.backgroundAudio.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="
+                            outputState.video.uniqueness.backgroundAudioEnabled
+                        "
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-background-audio-path')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.backgroundAudioPath.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-background-audio-path')"
+                            type="text"
+                            v-model="
+                                outputState.video.uniqueness.backgroundAudioPath
+                            "
+                            class="input input-bordered rounded-xl w-full"
+                            :placeholder="
+                                t(
+                                    'settings.output.tabs.uniqueness.backgroundAudioPath.hint',
+                                )
+                            "
+                        />
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-auto-post')"
+                        >
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.autoPost.label",
+                                )
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-auto-post')"
+                            type="checkbox"
+                            v-model="
+                                outputState.video.uniqueness.autoPostEnabled
+                            "
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t(
+                                    "settings.output.tabs.uniqueness.autoPost.hint",
+                                )
+                            }}
+                        </p>
+                    </div>
+
+                    <label
+                        class="mb-2 mt-4 font-semibold"
+                        :for="fieldId('uniqueness-watermark')"
+                    >
+                        {{
+                            t("settings.output.tabs.uniqueness.watermark.label")
+                        }}
+                    </label>
+                    <input
+                        :id="fieldId('uniqueness-watermark')"
+                        type="text"
+                        v-model="outputState.video.uniqueness.watermarkText"
+                        class="input input-bordered rounded-xl w-full"
+                        :placeholder="
+                            t('settings.output.tabs.uniqueness.watermark.hint')
+                        "
+                    />
+                </template>
+            </template>
+        </base-tabbed-pane>
+
+        <div class="mt-4 mb-4 flex flex-col gap-1">
+            <label class="font-semibold" :for="fieldId('add-thumbnail')">
+                {{ t("settings.output.addThumbnail.label") }}
+            </label>
+            <input
+                :id="fieldId('add-thumbnail')"
+                type="checkbox"
+                v-model="outputState.addThumbnail"
+                class="toggle toggle-primary my-1"
+            />
+            <p class="label">
+                {{ t("settings.output.addThumbnail.hint") }}
+            </p>
         </div>
 
-        <base-select
-            :label="t('settings.output.postprocess.label')"
-            :hint="postprocessHint"
-            :options="VideoPostprocessPreset"
-            :locale-key="'settings.output.postprocess.options'"
-            v-model="outputState.video.postprocessPreset"
-        />
-
-        <base-select
-            v-if="showVideoPostprocessMode"
-            :label="t('settings.output.postprocessMode.label')"
-            :hint="t('settings.output.postprocessMode.hint')"
-            :options="VideoPostprocessMode"
-            :locale-key="'settings.output.postprocessMode.options'"
-            v-model="outputState.video.customPostprocessMode"
-            class="mt-4"
-        />
-
-        <template v-if="showVideoPostprocessArgs">
-          <label class="mb-2 mt-4 font-semibold" :for="fieldId('video-postprocess-args')">
-            {{ t('settings.output.postprocessArgs.label') }}
-          </label>
-          <textarea
-              :id="fieldId('video-postprocess-args')"
-              v-model="outputState.video.postprocessArgs"
-              class="textarea rounded-xl w-full"
-              rows="3"
-              :placeholder="t('settings.output.postprocessArgs.hint')"
-          />
-        </template>
-
-        <p v-if="showMp42ContainerConflict" class="alert alert-error mt-2 alert-soft">
-          {{ t('settings.output.postprocess.mp42RequiresMp4') }}
-        </p>
-
-        <p v-else-if="showKeepOriginalStreamsConflict" class="alert alert-error mt-2 alert-soft">
-          {{ t('settings.output.postprocess.keepOriginalStreamsConflict') }}
-        </p>
-
-        <p v-if="showReencodeWarning" class="alert alert-warning mt-2 alert-soft">
-          {{ t('settings.output.postprocess.reencodeWarning') }}
-        </p>
-
-        <slot name="video-extra" />
-      </template>
-
-      <template #audio>
-        <h2 class="sr-only">
-          {{ t('settings.output.tabs.audio.screenreader') }}
-        </h2>
-
-        <base-select
-            :label="t('settings.output.tabs.audio.format.label')"
-            :hint="t('settings.output.tabs.audio.format.hint')"
-            :options="AudioFormat"
-            :locale-key="'settings.output.tabs.audio.format.options'"
-            v-model="outputState.audio.format"
-            class="mb-4"
-        />
-
         <div class="mb-4 flex flex-col gap-1">
-          <label class="font-semibold" :for="fieldId('keep-original-streams-audio')">
-            {{ t('settings.output.keepOriginalStreams.label') }}
-          </label>
-          <input
-              :id="fieldId('keep-original-streams-audio')"
-              type="checkbox"
-              v-model="keepOriginalStreamsAudio"
-              class="toggle toggle-primary my-1"
-          />
-          <p class="label">
-            {{ t('settings.output.keepOriginalStreams.hint') }}
-          </p>
+            <label class="font-semibold" :for="fieldId('save-thumbnail')">
+                {{ t("settings.output.saveThumbnail.label") }}
+            </label>
+            <input
+                :id="fieldId('save-thumbnail')"
+                type="checkbox"
+                v-model="outputState.saveThumbnail"
+                class="toggle toggle-primary my-1"
+            />
+            <p class="label">
+                {{ t("settings.output.saveThumbnail.hint") }}
+            </p>
         </div>
 
-        <base-select
-            :label="t('settings.output.tabs.audio.postprocess.label')"
-            :hint="t('settings.output.postprocess.hint')"
-            :options="AudioPostprocessPreset"
-            :locale-key="'settings.output.tabs.audio.postprocess.options'"
-            v-model="outputState.audio.postprocessPreset"
-        />
-
-        <template v-if="showAudioPostprocessArgs">
-          <label class="mb-2 mt-4 font-semibold" :for="fieldId('audio-postprocess-args')">
-            {{ t('settings.output.postprocessArgs.label') }}
-          </label>
-          <textarea
-              :id="fieldId('audio-postprocess-args')"
-              v-model="outputState.audio.postprocessArgs"
-              class="textarea rounded-xl w-full"
-              rows="3"
-              :placeholder="t('settings.output.postprocessArgs.hint')"
-          />
-        </template>
-
-        <slot name="audio-extra" />
-      </template>
-
-      <template #uniqueness>
-        <h2 class="sr-only">
-          {{ t('settings.output.tabs.uniqueness.screenreader') }}
-        </h2>
-
         <div class="mb-4 flex flex-col gap-1">
-          <label class="font-semibold" :for="fieldId('uniqueness-enabled')">
-            {{ t('settings.output.tabs.uniqueness.enabled.label') }}
-          </label>
-          <input
-              :id="fieldId('uniqueness-enabled')"
-              type="checkbox"
-              v-model="outputState.video.uniqueness.enabled"
-              class="toggle toggle-primary my-1"
-          />
-          <p class="label">
-            {{ t('settings.output.tabs.uniqueness.enabled.hint') }}
-          </p>
+            <label class="font-semibold" :for="fieldId('add-metadata')">
+                {{ t("settings.output.addMetadata.label") }}
+            </label>
+            <input
+                :id="fieldId('add-metadata')"
+                type="checkbox"
+                v-model="outputState.addMetadata"
+                class="toggle toggle-primary my-1"
+            />
+            <p class="label">
+                {{ t("settings.output.addMetadata.hint") }}
+            </p>
         </div>
 
-        <template v-if="outputState.video.uniqueness.enabled">
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-flip')">
-              {{ t('settings.output.tabs.uniqueness.flip.label') }}
+        <div v-if="showPreciseCuts" class="mb-4 flex flex-col gap-1">
+            <label class="font-semibold" :for="fieldId('precise-cuts')">
+                {{ t("settings.output.preciseCuts.label") }}
             </label>
             <input
-                :id="fieldId('uniqueness-flip')"
+                :id="fieldId('precise-cuts')"
                 type="checkbox"
-                v-model="outputState.video.uniqueness.flipHorizontal"
+                v-model="outputState.preciseCuts"
                 class="toggle toggle-primary my-1"
             />
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-crop')">
-              {{ t('settings.output.tabs.uniqueness.crop.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-crop')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.autoCrop"
-                class="toggle toggle-primary my-1"
-            />
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-ai-captions')">
-              {{ t('settings.output.tabs.uniqueness.aiCaptions.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-ai-captions')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.aiCaptions"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.aiCaptions.hint') }}
+            <p class="label whitespace-pre-line">
+                {{ t("settings.output.preciseCuts.hint") }}
             </p>
-          </div>
+        </div>
 
-          <div v-if="outputState.video.uniqueness.aiCaptions" class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-caption-provider')">
-              {{ t('settings.output.tabs.uniqueness.captionProvider.label') }}
-            </label>
-            <select
-                :id="fieldId('uniqueness-caption-provider')"
-                v-model="outputState.video.uniqueness.captionProvider"
-                class="select select-bordered rounded-xl w-full"
-            >
-              <option value="openai">OpenAI (Whisper)</option>
-              <option value="groq">Groq (Whisper - Fast/Free)</option>
-              <option value="gemini">Google Gemini (Fast/Free)</option>
-            </select>
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-ai-metadata')">
-              {{ t('settings.output.tabs.uniqueness.aiMetadata.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-ai-metadata')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.aiMetadata"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.aiMetadata.hint') }}
-            </p>
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-ai-shorts')">
-              {{ t('settings.output.tabs.uniqueness.aiShortsMode.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-ai-shorts')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.aiShortsMode"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.aiShortsMode.hint') }}
-            </p>
-          </div>
-
-          <div v-if="outputState.video.uniqueness.aiShortsMode" class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-num-shorts')">
-              {{ t('settings.output.tabs.uniqueness.numShorts.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-num-shorts')"
-                type="number"
-                v-model="outputState.video.uniqueness.numShorts"
-                min="1"
-                max="10"
-                class="input input-bordered rounded-xl w-full"
-            />
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-dubbing')">
-              {{ t('settings.output.tabs.uniqueness.dubbing.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-dubbing')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.dubbingEnabled"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.dubbing.hint') }}
-            </p>
-          </div>
-
-          <template v-if="outputState.video.uniqueness.dubbingEnabled">
-            <div class="mb-4 flex flex-col gap-1">
-              <label class="font-semibold" :for="fieldId('uniqueness-target-language')">
-                {{ t('settings.output.tabs.uniqueness.targetLanguage.label') }}
-              </label>
-              <select
-                  :id="fieldId('uniqueness-target-language')"
-                  v-model="outputState.video.uniqueness.targetLanguage"
-                  class="select select-bordered rounded-xl w-full"
-              >
-                <option value="en-US">English (United States)</option>
-                <option value="en-GB">English (United Kingdom)</option>
-                <option value="km-KH">Khmer (Cambodia)</option>
-                <option value="zh-CN">Chinese (Mandarin)</option>
-                <option value="es-ES">Spanish</option>
-                <option value="fr-FR">French</option>
-                <option value="de-DE">German</option>
-                <option value="ja-JP">Japanese</option>
-                <option value="ko-KR">Korean</option>
-                <option value="vi-VN">Vietnamese</option>
-                <option value="th-TH">Thai</option>
-                <option value="id-ID">Indonesian</option>
-              </select>
-            </div>
-
-            <div class="mb-4 flex flex-col gap-1">
-              <label class="font-semibold" :for="fieldId('uniqueness-voice-id')">
-                {{ t('settings.output.tabs.uniqueness.voiceCloneId.label') }}
-              </label>
-              <input
-                  :id="fieldId('uniqueness-voice-id')"
-                  type="text"
-                  v-model="outputState.video.uniqueness.voiceCloneId"
-                  class="input input-bordered rounded-xl w-full"
-                  :placeholder="t('settings.output.tabs.uniqueness.voiceCloneId.hint')"
-              />
-            </div>
-          </template>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-split-screen')">
-              {{ t('settings.output.tabs.uniqueness.splitScreen.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-split-screen')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.splitScreenEnabled"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.splitScreen.hint') }}
-            </p>
-          </div>
-
-          <div v-if="outputState.video.uniqueness.splitScreenEnabled" class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-split-screen-path')">
-              {{ t('settings.output.tabs.uniqueness.splitScreenPath.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-split-screen-path')"
-                type="text"
-                v-model="outputState.video.uniqueness.splitScreenVideoPath"
-                class="input input-bordered rounded-xl w-full"
-                :placeholder="t('settings.output.tabs.uniqueness.splitScreenPath.hint')"
-            />
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-micro-speed')">
-              {{ t('settings.output.tabs.uniqueness.microSpeed.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-micro-speed')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.microSpeedEnabled"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.microSpeed.hint') }}
-            </p>
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-ai-hook-rewriting')">
-              {{ t('settings.output.tabs.uniqueness.aiHookRewriting.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-ai-hook-rewriting')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.aiHookRewriting"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.aiHookRewriting.hint') }}
-            </p>
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-background-audio')">
-              {{ t('settings.output.tabs.uniqueness.backgroundAudio.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-background-audio')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.backgroundAudioEnabled"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.backgroundAudio.hint') }}
-            </p>
-          </div>
-
-          <div v-if="outputState.video.uniqueness.backgroundAudioEnabled" class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-background-audio-path')">
-              {{ t('settings.output.tabs.uniqueness.backgroundAudioPath.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-background-audio-path')"
-                type="text"
-                v-model="outputState.video.uniqueness.backgroundAudioPath"
-                class="input input-bordered rounded-xl w-full"
-                :placeholder="t('settings.output.tabs.uniqueness.backgroundAudioPath.hint')"
-            />
-          </div>
-
-          <div class="mb-4 flex flex-col gap-1">
-            <label class="font-semibold" :for="fieldId('uniqueness-auto-post')">
-              {{ t('settings.output.tabs.uniqueness.autoPost.label') }}
-            </label>
-            <input
-                :id="fieldId('uniqueness-auto-post')"
-                type="checkbox"
-                v-model="outputState.video.uniqueness.autoPostEnabled"
-                class="toggle toggle-primary my-1"
-            />
-            <p class="label">
-              {{ t('settings.output.tabs.uniqueness.autoPost.hint') }}
-            </p>
-          </div>
-
-          <label class="mb-2 mt-4 font-semibold" :for="fieldId('uniqueness-watermark')">
-            {{ t('settings.output.tabs.uniqueness.watermark.label') }}
-          </label>
-          <input
-              :id="fieldId('uniqueness-watermark')"
-              type="text"
-              v-model="outputState.video.uniqueness.watermarkText"
-              class="input input-bordered rounded-xl w-full"
-              :placeholder="t('settings.output.tabs.uniqueness.watermark.hint')"
-          />
-        </template>
-      </template>
-    </base-tabbed-pane>
-
-    <div class="mt-4 mb-4 flex flex-col gap-1">
-      <label class="font-semibold" :for="fieldId('add-thumbnail')">
-        {{ t('settings.output.addThumbnail.label') }}
-      </label>
-      <input
-          :id="fieldId('add-thumbnail')"
-          type="checkbox"
-          v-model="outputState.addThumbnail"
-          class="toggle toggle-primary my-1"
-      />
-      <p class="label">
-        {{ t('settings.output.addThumbnail.hint') }}
-      </p>
+        <slot name="after-common" />
     </div>
-
-    <div class="mb-4 flex flex-col gap-1">
-      <label class="font-semibold" :for="fieldId('add-thumbnail')">
-        {{ t('settings.output.saveThumbnail.label') }}
-      </label>
-      <input
-          :id="fieldId('save-thumbnail')"
-          type="checkbox"
-          v-model="outputState.saveThumbnail"
-          class="toggle toggle-primary my-1"
-      />
-      <p class="label">
-        {{ t('settings.output.saveThumbnail.hint') }}
-      </p>
-    </div>
-
-    <div class="mb-4 flex flex-col gap-1">
-      <label class="font-semibold" :for="fieldId('add-metadata')">
-        {{ t('settings.output.addMetadata.label') }}
-      </label>
-      <input
-          :id="fieldId('add-metadata')"
-          type="checkbox"
-          v-model="outputState.addMetadata"
-          class="toggle toggle-primary my-1"
-      />
-      <p class="label">
-        {{ t('settings.output.addMetadata.hint') }}
-      </p>
-    </div>
-
-    <div v-if="showPreciseCuts" class="mb-4 flex flex-col gap-1">
-      <label class="font-semibold" :for="fieldId('precise-cuts')">
-        {{ t('settings.output.preciseCuts.label') }}
-      </label>
-      <input
-          :id="fieldId('precise-cuts')"
-          type="checkbox"
-          v-model="outputState.preciseCuts"
-          class="toggle toggle-primary my-1"
-      />
-      <p class="label whitespace-pre-line">
-        {{ t('settings.output.preciseCuts.hint') }}
-      </p>
-    </div>
-
-    <slot name="after-common" />
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -532,5 +862,5 @@ const {
 
 const tabIdPrefix = computed(() => idPrefix || 'output');
 
-const fieldId = (name: string) => idPrefix ? `${idPrefix}-${name}` : name;
+const fieldId = (name: string) => (idPrefix ? `${idPrefix}-${name}` : name);
 </script>
