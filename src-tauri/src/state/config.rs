@@ -28,6 +28,35 @@ impl JsonBackedState for Config {
         .unwrap_or_else(|_| std::env::current_dir().expect("couldn’t get current dir"));
       value.output.download_dir = Some(download_path.to_str().unwrap().to_string());
     }
+
+    if value.ai.gemini_api_key.is_empty() {
+      if let Some(k) = crate::paths::load_env_var("GEMINI_API_KEY")
+        .or_else(|| crate::paths::load_env_var("VITE_GEMINI_API_KEY"))
+      {
+        value.ai.gemini_api_key = k;
+      }
+    }
+    if value.ai.deepseek_api_key.is_empty() {
+      if let Some(k) = crate::paths::load_env_var("DEEPSEEK_API_KEY")
+        .or_else(|| crate::paths::load_env_var("VITE_DEEPSEEK_API_KEY"))
+      {
+        value.ai.deepseek_api_key = k;
+      }
+    }
+    if value.ai.groq_api_key.is_empty() {
+      if let Some(k) = crate::paths::load_env_var("GROQ_API_KEY")
+        .or_else(|| crate::paths::load_env_var("VITE_GROQ_API_KEY"))
+      {
+        value.ai.groq_api_key = k;
+      }
+    }
+    if value.ai.openai_api_key.is_empty() {
+      if let Some(k) = crate::paths::load_env_var("OPENAI_API_KEY")
+        .or_else(|| crate::paths::load_env_var("VITE_OPENAI_API_KEY"))
+      {
+        value.ai.openai_api_key = k;
+      }
+    }
   }
 
   fn on_updated(app: &AppHandle<Wry>, new_value: &Self) {

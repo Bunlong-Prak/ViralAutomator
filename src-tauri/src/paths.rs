@@ -81,7 +81,47 @@ impl PathsManager {
   pub fn bin_dir(&self) -> &PathBuf {
     &self.bin_dir
   }
+}
 
+pub fn load_env_var(name: &str) -> Option<String> {
+  if let Ok(val) = std::env::var(name) {
+    let trimmed = val.trim();
+    if !trimmed.is_empty() {
+      return Some(trimmed.to_string());
+    }
+  }
+
+  let current = std::env::current_dir().ok()?;
+  let mut candidates = vec![current.join(".env")];
+  if let Some(parent) = current.parent() {
+    candidates.push(parent.join(".env"));
+  }
+
+  for env_path in candidates {
+    if env_path.exists() {
+      if let Ok(content) = std::fs::read_to_string(&env_path) {
+        for line in content.lines() {
+          let line = line.trim();
+          if line.starts_with('#') || line.is_empty() {
+            continue;
+          }
+          if let Some((k, v)) = line.split_once('=') {
+            if k.trim() == name {
+              let val = v.trim().trim_matches('"').trim_matches('\'').trim();
+              if !val.is_empty() {
+                return Some(val.to_string());
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  None
+}
+
+impl PathsManager {
   fn resolve_bin_dir(app_dir: PathBuf) -> (PathBuf, bool) {
     Self::resolve_bin_dir_with(
       app_dir,

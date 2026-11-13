@@ -5,9 +5,15 @@ use std::path::Path;
 use tokio::fs;
 
 pub async fn transcribe_audio(api_key: &str, audio_path: &Path) -> Result<String, String> {
-  if api_key.is_empty() {
+  let effective_key = if !api_key.trim().is_empty() {
+    api_key.trim().to_string()
+  } else if let Some(k) = crate::paths::load_env_var("GEMINI_API_KEY")
+    .or_else(|| crate::paths::load_env_var("VITE_GEMINI_API_KEY"))
+  {
+    k
+  } else {
     return Err("Gemini API key is required".to_string());
-  }
+  };
 
   let audio_bytes = fs::read(audio_path)
     .await
@@ -15,10 +21,11 @@ pub async fn transcribe_audio(api_key: &str, audio_path: &Path) -> Result<String
 
   let base64_audio = general_purpose::STANDARD.encode(audio_bytes);
 
-  let url = format!(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={}",
-        api_key
-    );
+  let is_oauth = effective_key.starts_with("ya29.") || effective_key.starts_with("Bearer ");
+  let clean_token = effective_key
+    .strip_prefix("Bearer ")
+    .unwrap_or(&effective_key)
+    .trim();
 
   let client = Client::new();
 
@@ -38,8 +45,19 @@ pub async fn transcribe_audio(api_key: &str, audio_path: &Path) -> Result<String
       }]
   });
 
-  let response = client
-    .post(&url)
+  let request_builder = if is_oauth {
+    client
+      .post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent")
+      .header("Authorization", format!("Bearer {}", clean_token))
+  } else {
+    let url = format!(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={}",
+      clean_token
+    );
+    client.post(&url)
+  };
+
+  let response = request_builder
     .header("Content-Type", "application/json")
     .json(&request_body)
     .send()

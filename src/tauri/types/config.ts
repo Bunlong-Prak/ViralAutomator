@@ -288,7 +288,7 @@ export const defaultAiSettings: AiSettings = {
   openaiApiKey: '',
   groqApiKey: '',
   deepseekApiKey: '',
-  geminiApiKey: '',
+  geminiApiKey: (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '',
   captionStyle: 'Alignment=10,FontSize=20,PrimaryColour=&H00FFFF,OutlineColour=&H000000,BorderStyle=3',
   voxcpmApiUrl: 'http://localhost:8000',
 };

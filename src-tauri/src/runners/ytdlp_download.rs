@@ -223,6 +223,8 @@ pub async fn run_ytdlp_download(
                                 !config.ai.groq_api_key.is_empty() || (!config.ai.deepseek_api_key.is_empty() && config.ai.deepseek_api_key.starts_with("gsk_"))
                             } else if uniqueness_config.caption_provider == "gemini" {
                                 !config.ai.gemini_api_key.is_empty()
+                                    || crate::paths::load_env_var("GEMINI_API_KEY").is_some()
+                                    || crate::paths::load_env_var("VITE_GEMINI_API_KEY").is_some()
                             } else {
                                 !config.ai.openai_api_key.is_empty()
                             };
