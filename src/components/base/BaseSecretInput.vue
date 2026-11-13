@@ -10,6 +10,7 @@
           :type="reveal ? 'text' : (password ? 'password' : 'text')"
           class="input join-item w-full"
           :value="displayValue"
+          :placeholder="placeholder"
           :disabled="disabled"
           autocomplete="off"
           @input="onInput"
@@ -21,7 +22,7 @@
           @click="reveal = !reveal"
       >
         <span class="sr-only">
-          {{ reveal ? t('components.base.secretInput.hide') : t('components.base.secretInput.hide') }} {{ label }}
+          {{ reveal ? t('components.base.secretInput.hide') : t('components.base.secretInput.show') }} {{ label }}
         </span>
         <eye-icon v-if="reveal" class="w-5 h-5"/>
         <eye-slash-icon v-else class="w-5 h-5"/>
@@ -51,6 +52,7 @@ const props = withDefaults(defineProps<{
   modelValue: string | null | undefined;
   id: string;
   label?: string;
+  placeholder?: string;
   password?: boolean;
   disabled?: boolean;
   clearable?: boolean;

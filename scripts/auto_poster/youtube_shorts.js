@@ -9,6 +9,11 @@ if (!videoPath || !title || !description) {
   process.exit(1);
 }
 
+if (!fs.existsSync(videoPath)) {
+  console.error(`❌ Video file not found: ${videoPath}`);
+  process.exit(1);
+}
+
 (async () => {
   console.log(`Starting YouTube Shorts auto-post for: ${videoPath}`);
 
@@ -54,14 +59,16 @@ if (!videoPath || !title || !description) {
 
     console.log('Setting title and description...');
 
+    const selectAllKey = process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
+
     // YouTube's new contenteditable textboxes require specific click/fill sequences
     await page.locator('#title-textarea #textbox').click();
-    await page.keyboard.press('Meta+A');
+    await page.keyboard.press(selectAllKey);
     await page.keyboard.press('Backspace');
     await page.keyboard.insertText(title);
 
     await page.locator('#description-textarea #textbox').click();
-    await page.keyboard.press('Meta+A');
+    await page.keyboard.press(selectAllKey);
     await page.keyboard.press('Backspace');
     await page.keyboard.insertText(description);
 
@@ -88,6 +95,7 @@ if (!videoPath || !title || !description) {
     console.log('✅ Successfully published to YouTube Shorts!');
   } catch (err) {
     console.error('❌ Error during upload:', err);
+    process.exitCode = 1;
   } finally {
     console.log('Closing browser...');
     await browser.close();

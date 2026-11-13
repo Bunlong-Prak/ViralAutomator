@@ -78,11 +78,20 @@ pub async fn run_ai_dubbing(
   let audio_url = result
     .audio_url
     .ok_or("No audio URL returned from VoxCPM")?;
+  let full_audio_url = if audio_url.starts_with("http://") || audio_url.starts_with("https://") {
+    audio_url
+  } else {
+    format!(
+      "{}/{}",
+      ai.voxcpm_api_url.trim_end_matches('/'),
+      audio_url.trim_start_matches('/')
+    )
+  };
   let dubbed_audio_path = video_path.with_extension("dubbed.mp3");
 
   // Download dubbed audio
   let audio_data = client
-    .get(audio_url)
+    .get(&full_audio_url)
     .send()
     .await
     .map_err(|e| format!("Failed to download dubbed audio: {}", e))?
@@ -132,9 +141,11 @@ pub async fn run_ai_dubbing(
     .map_err(|e| format!("FFmpeg merge failed: {}", e))?;
 
   if status.success() {
-    let _ = tokio::fs::remove_file(dubbed_audio_path).await;
-    Ok(output_path.to_str().unwrap().to_string())
+    let _ = tokio::fs::remove_file(&dubbed_audio_path).await;
+    let _ = tokio::fs::rename(&output_path, video_path).await;
+    Ok(video_path.to_str().unwrap().to_string())
   } else {
+    let _ = tokio::fs::remove_file(&dubbed_audio_path).await;
     Err("FFmpeg merge failed".to_string())
   }
 }

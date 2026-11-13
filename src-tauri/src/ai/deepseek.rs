@@ -90,14 +90,24 @@ pub async fn generate_metadata(
 
   #[derive(Deserialize)]
   struct Meta {
-    title: String,
-    description: String,
+    #[serde(alias = "Title")]
+    title: Option<String>,
+    #[serde(alias = "Description", alias = "desc", alias = "Desc")]
+    description: Option<String>,
   }
 
   let meta: Meta =
     serde_json::from_str(json_str).map_err(|e| format!("Failed to parse metadata: {}", e))?;
 
-  Ok((meta.title, meta.description))
+  let final_title = meta
+    .title
+    .filter(|t| !t.trim().is_empty())
+    .unwrap_or_else(|| original_title.to_string());
+  let final_desc = meta
+    .description
+    .unwrap_or_else(|| format!("{} #shorts", final_title));
+
+  Ok((final_title, final_desc))
 }
 
 pub async fn generate_translation(

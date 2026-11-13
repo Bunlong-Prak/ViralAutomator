@@ -570,20 +570,29 @@
                                 )
                             }}
                         </label>
-                        <input
-                            :id="fieldId('uniqueness-split-screen-path')"
-                            type="text"
-                            v-model="
-                                outputState.video.uniqueness
-                                    .splitScreenVideoPath
-                            "
-                            class="input input-bordered rounded-xl w-full"
-                            :placeholder="
-                                t(
-                                    'settings.output.tabs.uniqueness.splitScreenPath.hint',
-                                )
-                            "
-                        />
+                        <div class="join w-full">
+                            <input
+                                :id="fieldId('uniqueness-split-screen-path')"
+                                type="text"
+                                v-model="
+                                    outputState.video.uniqueness
+                                        .splitScreenVideoPath
+                                "
+                                class="input input-bordered join-item w-full"
+                                :placeholder="
+                                    t(
+                                        'settings.output.tabs.uniqueness.splitScreenPath.hint',
+                                    )
+                                "
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-secondary join-item"
+                                @click="pickSplitScreenFile"
+                            >
+                                <folder-icon class="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
 
                     <div class="mb-4 flex flex-col gap-1">
@@ -687,19 +696,28 @@
                                 )
                             }}
                         </label>
-                        <input
-                            :id="fieldId('uniqueness-background-audio-path')"
-                            type="text"
-                            v-model="
-                                outputState.video.uniqueness.backgroundAudioPath
-                            "
-                            class="input input-bordered rounded-xl w-full"
-                            :placeholder="
-                                t(
-                                    'settings.output.tabs.uniqueness.backgroundAudioPath.hint',
-                                )
-                            "
-                        />
+                        <div class="join w-full">
+                            <input
+                                :id="fieldId('uniqueness-background-audio-path')"
+                                type="text"
+                                v-model="
+                                    outputState.video.uniqueness.backgroundAudioPath
+                                "
+                                class="input input-bordered join-item w-full"
+                                :placeholder="
+                                    t(
+                                        'settings.output.tabs.uniqueness.backgroundAudioPath.hint',
+                                    )
+                                "
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-secondary join-item"
+                                @click="pickBackgroundAudioFile"
+                            >
+                                <folder-icon class="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
 
                     <div class="mb-4 flex flex-col gap-1">
@@ -818,6 +836,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { FolderIcon } from '@heroicons/vue/24/solid';
 import BaseSelect from '../base/BaseSelect.vue';
 import BaseTabbedPane from '../base/BaseTabbedPane.vue';
 import type { OutputSettings } from '../../tauri/types/config.ts';
@@ -829,6 +848,7 @@ import {
   VideoPostprocessPreset,
 } from '../../tauri/types/media.ts';
 import { useOutputSettingsEditor } from '../../composables/useOutputSettingsEditor.ts';
+import { useDialog } from '../../composables/useDialog.ts';
 
 const outputState = defineModel<OutputSettings>({ required: true });
 
@@ -846,6 +866,7 @@ const { idPrefix } = defineProps({
 });
 
 const { t } = useI18n();
+const { openPathDialog } = useDialog();
 const {
   activeTab,
   tabs,
@@ -863,4 +884,22 @@ const {
 const tabIdPrefix = computed(() => idPrefix || 'output');
 
 const fieldId = (name: string) => (idPrefix ? `${idPrefix}-${name}` : name);
+
+const pickSplitScreenFile = async () => {
+  const selected = await openPathDialog(false, false, [
+    { name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm', 'avi'] },
+  ]);
+  if (typeof selected === 'string') {
+    outputState.value.video.uniqueness.splitScreenVideoPath = selected;
+  }
+};
+
+const pickBackgroundAudioFile = async () => {
+  const selected = await openPathDialog(false, false, [
+    { name: 'Audio', extensions: ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'] },
+  ]);
+  if (typeof selected === 'string') {
+    outputState.value.video.uniqueness.backgroundAudioPath = selected;
+  }
+};
 </script>

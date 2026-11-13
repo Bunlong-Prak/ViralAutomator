@@ -12,6 +12,7 @@
             id="openai-api-key"
             v-model="aiState.openaiApiKey"
             :placeholder="t('settings.ai.openai.hint')"
+            :password="true"
         />
       </div>
 
@@ -23,6 +24,7 @@
             id="groq-api-key"
             v-model="aiState.groqApiKey"
             :placeholder="t('settings.ai.groq.hint')"
+            :password="true"
         />
       </div>
 
@@ -34,6 +36,7 @@
             id="deepseek-api-key"
             v-model="aiState.deepseekApiKey"
             :placeholder="t('settings.ai.deepseek.hint')"
+            :password="true"
         />
       </div>
 
@@ -45,6 +48,7 @@
             id="gemini-api-key"
             v-model="aiState.geminiApiKey"
             :placeholder="t('settings.ai.gemini.hint')"
+            :password="true"
         />
       </div>
 

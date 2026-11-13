@@ -59,18 +59,21 @@ pub async fn transcribe_audio(api_key: &str, audio_path: &Path) -> Result<String
     .await
     .map_err(|e| format!("Failed to parse Gemini response: {}", e))?;
 
-  let transcription = response_json["candidates"][0]["content"]["parts"][0]["text"]
+  let raw_transcription = response_json["candidates"][0]["content"]["parts"][0]["text"]
     .as_str()
     .ok_or_else(|| "Failed to extract transcription from Gemini response".to_string())?
-    .trim()
-    .to_string();
+    .trim();
 
-  let transcription = transcription
-    .strip_prefix("```srt\n")
-    .or_else(|| transcription.strip_prefix("```\n"))
-    .unwrap_or(&transcription);
+  let mut transcription = raw_transcription;
+  if let Some(stripped) = transcription.strip_prefix("```srt") {
+    transcription = stripped.trim_start();
+  } else if let Some(stripped) = transcription.strip_prefix("```") {
+    transcription = stripped.trim_start();
+  }
 
-  let transcription = transcription.strip_suffix("\n```").unwrap_or(transcription);
+  if let Some(stripped) = transcription.strip_suffix("```") {
+    transcription = stripped.trim_end();
+  }
 
   Ok(transcription.to_string())
 }

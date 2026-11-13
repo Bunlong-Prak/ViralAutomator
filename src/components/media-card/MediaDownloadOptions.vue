@@ -222,9 +222,9 @@ watch(
     emit('update:modelValue', payload);
 
     if (format && isVideoLike(selectedTrackType.value)) {
-      lastPick.video = format.id;
+      lastPick.video = makeKey(format);
     } else if (format) {
-      lastPick.audio = format.id;
+      lastPick.audio = makeKey(format);
     }
   },
   { immediate: true, flush: 'post' },

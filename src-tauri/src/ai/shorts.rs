@@ -58,8 +58,17 @@ pub async fn identify_viral_segments(
         num_clips
     );
 
+  let (endpoint, model_name) = if api_key.starts_with("gsk_") {
+    (
+      "https://api.groq.com/openai/v1/chat/completions",
+      "llama-3.3-70b-versatile",
+    )
+  } else {
+    ("https://api.deepseek.com/chat/completions", "deepseek-chat")
+  };
+
   let request = DeepseekRequest {
-    model: "deepseek-chat".to_string(),
+    model: model_name.to_string(),
     messages: vec![
       DeepseekMessage {
         role: "system".to_string(),
@@ -76,7 +85,7 @@ pub async fn identify_viral_segments(
   };
 
   let response = client
-    .post("https://api.deepseek.com/v1/chat/completions")
+    .post(endpoint)
     .header("Authorization", format!("Bearer {}", api_key))
     .json(&request)
     .send()
@@ -86,7 +95,7 @@ pub async fn identify_viral_segments(
   if !response.status().is_success() {
     let status = response.status();
     let error_body = response.text().await.unwrap_or_default();
-    return Err(format!("Deepseek API error: {} - {}", status, error_body));
+    return Err(format!("AI API error: {} - {}", status, error_body));
   }
 
   let data: DeepseekResponse = response
@@ -97,12 +106,12 @@ pub async fn identify_viral_segments(
   let content = data
     .choices
     .first()
-    .ok_or("No response from Deepseek")?
+    .ok_or("No response from AI API")?
     .message
     .content
     .clone();
 
-  // Deepseek's json_object format guarantees valid JSON, but sometimes wraps it in markdown.
+  // JSON format guarantees valid JSON, but sometimes wraps it in markdown.
   let mut clean_json = content.trim();
   if let Some(stripped) = clean_json.strip_prefix("```json") {
     clean_json = stripped.trim();
@@ -118,11 +127,19 @@ pub async fn identify_viral_segments(
 
   let segments: Vec<VideoSegment> = if let Some(arr) = v
     .get("segments")
-    .or_else(|| v.as_object().and_then(|m| m.values().next()))
-    .and_then(|v| v.as_array())
+    .or_else(|| v.get("clips"))
+    .or_else(|| v.get("viral_segments"))
+    .or_else(|| v.get("data"))
+    .and_then(|val| val.as_array())
+    .or_else(|| {
+      if let Some(obj) = v.as_object() {
+        obj.values().find_map(|val| val.as_array())
+      } else {
+        None
+      }
+    })
+    .or_else(|| v.as_array())
   {
-    serde_json::from_value(serde_json::Value::Array(arr.clone())).map_err(|e| e.to_string())?
-  } else if let Some(arr) = v.as_array() {
     serde_json::from_value(serde_json::Value::Array(arr.clone())).map_err(|e| e.to_string())?
   } else {
     return Err("Could not find segments array in JSON response".to_string());

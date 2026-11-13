@@ -150,7 +150,10 @@ pub fn run() {
       #[cfg(not(all(target_os = "macos", debug_assertions)))]
       {
         let state_ref = handle.state::<stronghold_state::StrongholdState>();
-        stronghold_state::init_on_startup(handle, &state_ref);
+
+        if !state_ref.is_initialized() {
+          stronghold_state::init_on_startup(handle, &state_ref);
+        }
       }
 
       // configure app menu
