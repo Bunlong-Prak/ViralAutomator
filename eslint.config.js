@@ -68,4 +68,12 @@ export default [
       },
     },
   },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      parser: tseslint.parser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+  },
 ];

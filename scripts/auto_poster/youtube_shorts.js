@@ -1,103 +1,108 @@
-const { chromium } = require('playwright');
-const fs = require('fs');
-const path = require('path');
+import {
+  launchPlatformContext,
+  parsePosterArgs,
+  replaceContentEditableText,
+  validateVideoFile,
+} from './common.js';
 
-const [,, videoPath, title, description] = process.argv;
+async function waitForStudioReady(page) {
+  await page.goto('https://studio.youtube.com/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(2000);
 
-if (!videoPath || !title || !description) {
-  console.error('Usage: node youtube_shorts.js <videoPath> <title> <description>');
-  process.exit(1);
+  if (page.url().includes('accounts.google.com') || page.url().includes('signin')) {
+    console.log('YouTube Studio login required. Please sign in manually in the opened browser window...');
+    await page.waitForURL('https://studio.youtube.com/**', { timeout: 0 });
+    await page.waitForTimeout(2000);
+    console.log('YouTube Studio login detected.');
+  }
 }
 
-if (!fs.existsSync(videoPath)) {
-  console.error(`❌ Video file not found: ${videoPath}`);
-  process.exit(1);
-}
+async function run() {
+  const parsed = parsePosterArgs(process.argv);
+  if (parsed.mode === 'help') {
+    console.log('Usage: node youtube_shorts.js --login-only | --meta <meta.json> | <videoPath> <title> <desc>');
+    return;
+  }
 
-(async () => {
-  console.log(`Starting YouTube Shorts auto-post for: ${videoPath}`);
-
-  // Use persistent context to retain login cookies
-  const userDataDir = path.join(__dirname, '..', '..', '.youtube_auth');
-
-  // Headless is currently set to false. On the very first run, you will need to manually sign in to Google.
-  // After the first run, cookies will be saved in .youtube_auth and you can safely change this to true.
-  const browser = await chromium.launchPersistentContext(userDataDir, {
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-
-  const page = await browser.newPage();
+  const { context, page } = await launchPlatformContext('youtube');
 
   try {
-    await page.goto('https://studio.youtube.com/', { waitUntil: 'networkidle' });
+    await waitForStudioReady(page);
 
-    // Check if we need to login
-    if (page.url().includes('accounts.google.com')) {
-      console.log('NOT LOGGED IN! Please login manually in the opened browser window.');
-      console.log('Waiting for user to complete login...');
-      await page.waitForURL('https://studio.youtube.com/**', { timeout: 0 }); // Wait indefinitely
-      console.log('Login detected. Proceeding...');
+    if (parsed.mode === 'login') {
+      console.log('YouTube Studio session saved successfully.');
+      await page.waitForTimeout(2500);
+      return;
     }
 
-    console.log('Navigating to upload...');
+    const { videoPath, title, description } = parsed.meta;
+    validateVideoFile(videoPath);
 
-    // Click Create button
-    await page.locator('ytcp-icon-button[aria-label="Create"]').click();
-    await page.locator('tp-yt-paper-item:has-text("Upload videos")').click();
+    console.log(`Uploading YouTube Short: ${videoPath}`);
 
-    // Upload file
-    console.log('Uploading file...');
+    // Click Create -> Upload videos
+    const createBtn = page.locator('ytcp-button#create-icon, ytcp-icon-button[aria-label="Create"], #create-icon').first();
+    await createBtn.waitFor({ state: 'visible', timeout: 30000 });
+    await createBtn.click();
+
+    const uploadItem = page.locator('tp-yt-paper-item:has-text("Upload videos"), ytcp-ve:has-text("Upload videos")').first();
+    await uploadItem.waitFor({ state: 'visible', timeout: 15000 });
+    await uploadItem.click();
+
+    // Select file via file chooser
     const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.locator('ytcp-button#select-files-button').click(),
+      page.waitForEvent('filechooser', { timeout: 30000 }),
+      page.locator('ytcp-button#select-files-button, #select-files-button').first().click(),
     ]);
     await fileChooser.setFiles(videoPath);
 
-    // Wait for the upload form to appear
-    await page.waitForSelector('#title-textarea', { state: 'visible' });
+    // Wait for metadata editor
+    await page.locator('#title-textarea #textbox').first().waitFor({ state: 'visible', timeout: 45000 });
 
-    console.log('Setting title and description...');
+    const safeTitle = (title || 'Viral Short').slice(0, 99);
+    const safeDesc = description || `${safeTitle} #shorts`;
 
-    const selectAllKey = process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
+    console.log('Filling YouTube Shorts title and description...');
+    await replaceContentEditableText(page, page.locator('#title-textarea #textbox').first(), safeTitle);
+    await replaceContentEditableText(page, page.locator('#description-textarea #textbox').first(), safeDesc);
 
-    // YouTube's new contenteditable textboxes require specific click/fill sequences
-    await page.locator('#title-textarea #textbox').click();
-    await page.keyboard.press(selectAllKey);
-    await page.keyboard.press('Backspace');
-    await page.keyboard.insertText(title);
-
-    await page.locator('#description-textarea #textbox').click();
-    await page.keyboard.press(selectAllKey);
-    await page.keyboard.press('Backspace');
-    await page.keyboard.insertText(description);
-
-    // Mark as "Not made for kids" (required)
-    await page.locator('tp-yt-paper-radio-button[name="VIDEO_MADE_FOR_KIDS_NOT_MFK"]').click();
-
-    console.log('Waiting for upload to finish processing...');
-
-    // Click Next until Visibility tab
-    for (let i = 0; i < 3; i++) {
-      await page.locator('#next-button').click();
-      await page.waitForTimeout(1000);
+    // Audience: Not made for kids
+    const notForKids = page.locator('tp-yt-paper-radio-button[name="VIDEO_MADE_FOR_KIDS_NOT_MFK"]').first();
+    if (await notForKids.isVisible()) {
+      await notForKids.click();
     }
 
-    // Select Public
-    await page.locator('tp-yt-paper-radio-button[name="PUBLIC"]').click();
+    // Advance through Details -> Video elements -> Checks -> Visibility
+    for (let step = 0; step < 3; step++) {
+      const nextBtn = page.locator('#next-button').first();
+      await nextBtn.waitFor({ state: 'visible', timeout: 15000 });
+      await nextBtn.click();
+      await page.waitForTimeout(1200);
+    }
+
+    // Select Public visibility
+    const publicRadio = page.locator('tp-yt-paper-radio-button[name="PUBLIC"]').first();
+    await publicRadio.waitFor({ state: 'visible', timeout: 15000 });
+    await publicRadio.click();
+    await page.waitForTimeout(800);
 
     // Publish
-    console.log('Publishing...');
-    await page.locator('#done-button').click();
+    console.log('Publishing YouTube Short...');
+    const doneBtn = page.locator('#done-button').first();
+    await doneBtn.waitFor({ state: 'visible', timeout: 15000 });
+    await doneBtn.click();
 
-    // Wait for success dialog
-    await page.waitForSelector('ytcp-video-share-dialog', { state: 'visible' });
-    console.log('✅ Successfully published to YouTube Shorts!');
+    await page.locator('ytcp-video-share-dialog, ytcp-uploads-still-processing-dialog').first().waitFor({
+      state: 'visible',
+      timeout: 60000,
+    });
+    console.log('Successfully published to YouTube Shorts!');
   } catch (err) {
-    console.error('❌ Error during upload:', err);
+    console.error('YouTube Shorts upload failed:', err?.message || err);
     process.exitCode = 1;
   } finally {
-    console.log('Closing browser...');
-    await browser.close();
+    await context.close();
   }
-})();
+}
+
+await run();

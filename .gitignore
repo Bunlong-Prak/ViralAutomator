@@ -41,3 +41,7 @@ src-tauri/target/
 
 # Local binaries
 bin/
+
+# Persistent social platform browser auth profiles (never commit cookies)
+.auth_profiles/
+.youtube_auth/
