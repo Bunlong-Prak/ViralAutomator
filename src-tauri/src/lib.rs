@@ -7,6 +7,7 @@ mod menu;
 mod models;
 mod parsers;
 mod paths;
+mod publish;
 mod runners;
 mod scheduling;
 mod state;
@@ -21,6 +22,13 @@ use crate::i18n::I18nManager;
 use crate::logging::LogStoreState;
 use crate::menu::setup_menu;
 use crate::paths::PathsManager;
+use crate::publish::commands::{
+  publish_auth_status, publish_auto_schedule, publish_item_now, publish_open_login,
+  publish_queue_add, publish_queue_clear_posted, publish_queue_list, publish_queue_remove,
+  publish_queue_update, publish_regenerate_metadata,
+};
+use crate::publish::queue::PublishQueueState;
+use crate::publish::runner::{start_drip_scheduler, PublishExecutionLock};
 use crate::scheduling::concurrency::DynamicSemaphore;
 use crate::scheduling::download_pipeline::{setup_download_dispatcher, DownloadSender};
 use crate::scheduling::fetch_pipeline::{setup_fetch_dispatcher, FetchSender};
@@ -88,6 +96,12 @@ pub fn run() {
       // setup runtime mode detection / path management
       let path_handle = PathsManager::new(handle);
       handle.manage(path_handle.clone());
+
+      // setup persistent multi-platform publish queue & background drip scheduler
+      let publish_queue = PublishQueueState::new(path_handle.app_dir().clone());
+      handle.manage(publish_queue);
+      handle.manage(PublishExecutionLock::default());
+      start_drip_scheduler(handle.clone());
 
       // setup config management
       let config_handle = ConfigHandle::init(handle)?;
@@ -190,6 +204,16 @@ pub fn run() {
       stronghold_set,
       get_platform,
       notify,
+      publish_queue_list,
+      publish_queue_add,
+      publish_queue_update,
+      publish_queue_remove,
+      publish_queue_clear_posted,
+      publish_item_now,
+      publish_auto_schedule,
+      publish_open_login,
+      publish_auth_status,
+      publish_regenerate_metadata,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application");
