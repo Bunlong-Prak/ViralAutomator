@@ -162,8 +162,11 @@ pub struct UniquenessOverrides {
   pub enabled: Option<bool>,
   pub flip_horizontal: Option<bool>,
   pub auto_crop: Option<bool>,
+  pub crop_mode: Option<String>,
   pub watermark_text: Option<String>,
   pub ai_captions: Option<bool>,
+  pub hormozi_captions: Option<bool>,
+  pub hook_banner_enabled: Option<bool>,
   pub ai_metadata: Option<bool>,
   pub caption_provider: Option<String>,
   pub ai_shorts_mode: Option<bool>,
@@ -178,6 +181,9 @@ pub struct UniquenessOverrides {
   pub background_audio_enabled: Option<bool>,
   pub background_audio_path: Option<String>,
   pub auto_post_enabled: Option<bool>,
+  pub auto_queue_publish: Option<bool>,
+  pub publish_platforms: Option<Vec<String>>,
+  pub drip_interval_hours: Option<u32>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]

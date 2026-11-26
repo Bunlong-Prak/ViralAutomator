@@ -166,8 +166,11 @@ pub async fn run_ytdlp_download(
                   if let Some(enabled) = u.enabled { uniqueness_config.enabled = enabled; }
                   if let Some(flip) = u.flip_horizontal { uniqueness_config.flip_horizontal = flip; }
                   if let Some(crop) = u.auto_crop { uniqueness_config.auto_crop = crop; }
+                  if let Some(mode) = u.crop_mode.as_ref() { uniqueness_config.crop_mode = mode.clone(); }
                   if let Some(watermark) = u.watermark_text.as_ref() { uniqueness_config.watermark_text = watermark.clone(); }
                   if let Some(ai_caps) = u.ai_captions { uniqueness_config.ai_captions = ai_caps; }
+                  if let Some(hormozi) = u.hormozi_captions { uniqueness_config.hormozi_captions = hormozi; }
+                  if let Some(hook_banner) = u.hook_banner_enabled { uniqueness_config.hook_banner_enabled = hook_banner; }
                   if let Some(ai_meta) = u.ai_metadata { uniqueness_config.ai_metadata = ai_meta; }
                   if let Some(provider) = u.caption_provider.as_ref() { uniqueness_config.caption_provider = provider.clone(); }
                   if let Some(ai_shorts) = u.ai_shorts_mode { uniqueness_config.ai_shorts_mode = ai_shorts; }
@@ -182,14 +185,20 @@ pub async fn run_ytdlp_download(
                   if let Some(bg_audio) = u.background_audio_enabled { uniqueness_config.background_audio_enabled = bg_audio; }
                   if let Some(bg_path) = u.background_audio_path.as_ref() { uniqueness_config.background_audio_path = bg_path.clone(); }
                   if let Some(auto_post) = u.auto_post_enabled { uniqueness_config.auto_post_enabled = auto_post; }
+                  if let Some(auto_queue) = u.auto_queue_publish { uniqueness_config.auto_queue_publish = auto_queue; }
+                  if let Some(platforms) = u.publish_platforms.as_ref() { uniqueness_config.publish_platforms = platforms.clone(); }
+                  if let Some(drip) = u.drip_interval_hours { uniqueness_config.drip_interval_hours = drip; }
                 }
 
                 if uniqueness_config.enabled {
-                    let is_audio_only = dest_path.ends_with(".mp3")
+                    let is_audio_only = matches!(entry.format.track_type, crate::models::TrackType::Audio)
+                        || dest_path.ends_with(".mp3")
                         || dest_path.ends_with(".m4a")
                         || dest_path.ends_with(".wav")
                         || dest_path.ends_with(".aac")
-                        || dest_path.ends_with(".flac");
+                        || dest_path.ends_with(".flac")
+                        || dest_path.ends_with(".ogg")
+                        || dest_path.ends_with(".opus");
 
                     if is_audio_only {
                         tracing::warn!("Skipping Faceless processing because the downloaded file is audio-only.");
@@ -207,89 +216,112 @@ pub async fn run_ytdlp_download(
                             stage: crate::models::ProgressStage::Finalizing,
                         });
 
-                        let llm_key = get_llm_key(&config.ai);
+                        let input_title = entry
+                            .template_context
+                            .values
+                            .get("title")
+                            .filter(|s| !s.trim().is_empty())
+                            .cloned()
+                            .unwrap_or_else(|| {
+                                Path::new(&dest_path)
+                                    .file_stem()
+                                    .and_then(|s| s.to_str())
+                                    .unwrap_or("Viral Video")
+                                    .to_string()
+                            });
 
-                        if uniqueness_config.ai_shorts_mode && llm_key.is_some() {
-                            if let Err(e) = run_ai_shorts_extraction(&app, &dest_path, &config.ai, &uniqueness_config).await {
+                        let has_llm = crate::ai::has_any_llm_key(&config.ai);
+
+                        if uniqueness_config.ai_shorts_mode && has_llm {
+                            if let Err(e) = run_ai_shorts_extraction(
+                                &app,
+                                &dest_path,
+                                &entry.url,
+                                &input_title,
+                                &config.ai,
+                                &uniqueness_config,
+                            ).await {
                                 tracing::error!("AI Shorts extraction failed: {}", e);
                                 return Err(YtdlpDownloadError::RunnerError(format!("AI Shorts extraction failed: {}", e)));
                             }
                         } else {
-                            if uniqueness_config.ai_shorts_mode && llm_key.is_none() {
-                                tracing::warn!("AI Shorts Mode enabled but neither DeepSeek nor Groq API key configured. Skipping shorts extraction.");
+                            if uniqueness_config.ai_shorts_mode && !has_llm {
+                                tracing::warn!("AI Shorts Mode enabled but no Gemini/DeepSeek/Groq API key configured. Skipping shorts extraction.");
                             }
 
-                            let has_valid_caption_key = if uniqueness_config.caption_provider == "groq" {
-                                !config.ai.groq_api_key.is_empty() || (!config.ai.deepseek_api_key.is_empty() && config.ai.deepseek_api_key.starts_with("gsk_"))
-                            } else if uniqueness_config.caption_provider == "gemini" {
-                                !config.ai.gemini_api_key.is_empty()
-                                    || crate::paths::load_env_var("GEMINI_API_KEY").is_some()
-                                    || crate::paths::load_env_var("VITE_GEMINI_API_KEY").is_some()
+                            let has_caption_key = crate::ai::has_valid_caption_key(&config.ai, &uniqueness_config.caption_provider);
+
+                            // Generate transcript early if needed for captions, metadata, or dubbing
+                            let mut transcript = String::new();
+                            if (uniqueness_config.ai_captions || uniqueness_config.dubbing_enabled) && has_caption_key {
+                                match run_ai_transcription(&app, &dest_path, &config.ai, &uniqueness_config).await {
+                                    Ok(srt) => transcript = srt,
+                                    Err(e) => {
+                                        if uniqueness_config.ai_captions {
+                                            tracing::error!("AI transcription failed: {}", e);
+                                            return Err(YtdlpDownloadError::RunnerError(format!("AI transcription failed: {}", e)));
+                                        } else {
+                                            tracing::warn!("Transcription for dubbing failed: {}", e);
+                                        }
+                                    }
+                                }
+                            } else if uniqueness_config.ai_captions && !has_caption_key {
+                                tracing::warn!("AI Captions enabled but API key missing. Falling back to basic uniqueness.");
+                            }
+
+                            // Generate multi-platform metadata (and 3s viral hook text!) before rendering
+                            let metadata = if (uniqueness_config.ai_metadata || uniqueness_config.hook_banner_enabled) && has_llm {
+                                crate::ai::generate_metadata_auto(&config.ai, &input_title, &transcript)
+                                    .await
+                                    .unwrap_or_else(|e| {
+                                        tracing::warn!("AI metadata generation fell back to defaults: {}", e);
+                                        crate::ai::MultiPlatformMetadata::fallback(&input_title)
+                                    })
                             } else {
-                                !config.ai.openai_api_key.is_empty()
+                                crate::ai::MultiPlatformMetadata::fallback(&input_title)
                             };
 
-                            if uniqueness_config.ai_captions && has_valid_caption_key {
-                                if let Err(e) = run_ai_captions(&app, &dest_path, &config.ai, &uniqueness_config).await {
-                                    tracing::error!("AI Captions failed: {}", e);
+                            let hook_opt = if uniqueness_config.hook_banner_enabled && !metadata.hook_text.trim().is_empty() {
+                                Some(metadata.hook_text.as_str())
+                            } else {
+                                None
+                            };
+
+                            if (uniqueness_config.ai_captions && !transcript.is_empty()) || hook_opt.is_some() {
+                                if let Err(e) = run_ai_captions_and_filters(
+                                    &app,
+                                    &dest_path,
+                                    &transcript,
+                                    hook_opt,
+                                    &config.ai,
+                                    &uniqueness_config,
+                                ).await {
+                                    tracing::error!("AI Captions/Uniqueness failed: {}", e);
                                     return Err(YtdlpDownloadError::RunnerError(format!("AI Captions failed: {}", e)));
                                 }
-                            } else {
-                                if uniqueness_config.ai_captions && !has_valid_caption_key {
-                                    tracing::warn!("AI Captions enabled but API key missing. Falling back to basic uniqueness.");
-                                }
-                                if let Err(e) = run_basic_uniqueness(&app, &dest_path, &uniqueness_config).await {
-                                    tracing::error!("Basic Uniqueness failed: {}", e);
-                                    return Err(YtdlpDownloadError::RunnerError(format!("Basic Uniqueness failed: {}", e)));
-                                }
+                            } else if let Err(e) = run_basic_uniqueness(&app, &dest_path, &uniqueness_config).await {
+                                tracing::error!("Basic Uniqueness failed: {}", e);
+                                return Err(YtdlpDownloadError::RunnerError(format!("Basic Uniqueness failed: {}", e)));
                             }
 
-                            if uniqueness_config.dubbing_enabled && llm_key.is_some() {
-                                 // We need transcript for dubbing
-                                 let transcript = if let Ok(content) = run_ai_transcription(&app, &dest_path, &config.ai, &uniqueness_config).await {
-                                     content
-                                 } else {
-                                     "".to_string()
-                                 };
-
-                                 if !transcript.is_empty() {
-                                    if let Err(e) = crate::ai::dubbing::run_ai_dubbing(&app, Path::new(&dest_path), &transcript, &config.ai, &uniqueness_config).await {
-                                        tracing::error!("Dubbing failed: {}", e);
-                                        return Err(YtdlpDownloadError::RunnerError(format!("Dubbing failed: {}", e)));
-                                    }
-                                 }
-                            }
-
-                            let input_title = entry
-                                .template_context
-                                .values
-                                .get("title")
-                                .filter(|s| !s.trim().is_empty())
-                                .cloned()
-                                .unwrap_or_else(|| {
-                                    Path::new(&dest_path)
-                                        .file_stem()
-                                        .and_then(|s| s.to_str())
-                                        .unwrap_or("Viral Video")
-                                        .to_string()
-                                });
-
-                            let mut generated_title = input_title.clone();
-                            let mut generated_desc = format!("{} #shorts", input_title);
-
-                            if uniqueness_config.ai_metadata {
-                                if let Some(key) = llm_key {
-                                    if let Ok((title, desc)) = crate::ai::deepseek::generate_metadata(key, &input_title).await {
-                                        tracing::info!("AI Metadata generated: Title={}, Desc={}", title, desc);
-                                        generated_title = title;
-                                        generated_desc = desc;
-                                    }
+                            if uniqueness_config.dubbing_enabled && has_llm && !transcript.is_empty() {
+                                if let Err(e) = crate::ai::dubbing::run_ai_dubbing(&app, Path::new(&dest_path), &transcript, &config.ai, &uniqueness_config).await {
+                                    tracing::error!("Dubbing failed: {}", e);
+                                    return Err(YtdlpDownloadError::RunnerError(format!("Dubbing failed: {}", e)));
                                 }
                             }
 
-                            if uniqueness_config.auto_post_enabled {
-                                tracing::info!("Auto-Posting to YouTube Shorts: {}", dest_path);
-                                invoke_auto_poster(&dest_path, &generated_title, &generated_desc).await;
+                            if uniqueness_config.auto_queue_publish || uniqueness_config.auto_post_enabled {
+                                enqueue_processed_clip(
+                                    &app,
+                                    &dest_path,
+                                    Some(entry.url.clone()),
+                                    &input_title,
+                                    None,
+                                    None,
+                                    metadata,
+                                    &uniqueness_config,
+                                ).await;
                             }
                         }
                     }
@@ -416,52 +448,129 @@ fn download_section_duration_secs(section: &DownloadSection) -> Option<f64> {
   (end > start).then_some(end - start)
 }
 
-fn get_llm_key(ai: &AiSettings) -> Option<&str> {
-  if !ai.deepseek_api_key.is_empty() {
-    Some(ai.deepseek_api_key.as_str())
-  } else if !ai.groq_api_key.is_empty() {
-    Some(ai.groq_api_key.as_str())
+fn ffmpeg_bin_and_path(app: &AppHandle) -> (PathBuf, String) {
+  let paths_manager = app.state::<crate::paths::PathsManager>();
+  let bin_dir = paths_manager.bin_dir();
+  let separator = if cfg!(windows) { ';' } else { ':' };
+  let path_env = std::env::var("PATH").unwrap_or_default();
+  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
+  let ffmpeg_exe = if cfg!(windows) {
+    "ffmpeg.exe"
+  } else {
+    "ffmpeg"
+  };
+  (bin_dir.join(ffmpeg_exe), new_path)
+}
+
+async fn extract_video_thumbnail(app: &AppHandle, video_path: &Path) -> Option<String> {
+  let (ffmpeg_path, new_path) = ffmpeg_bin_and_path(app);
+  let thumb_path = video_path.with_extension("thumb.jpg");
+  let video_str = video_path.to_str()?;
+  let thumb_str = thumb_path.to_str()?;
+
+  let status = TokioCommand::new(&ffmpeg_path)
+    .env("PATH", &new_path)
+    .args([
+      "-ss",
+      "00:00:01.5",
+      "-i",
+      video_str,
+      "-vframes",
+      "1",
+      "-q:v",
+      "3",
+      thumb_str,
+      "-y",
+    ])
+    .status()
+    .await
+    .ok()?;
+
+  if status.success() && thumb_path.exists() {
+    Some(thumb_str.to_string())
   } else {
     None
   }
 }
 
-async fn invoke_auto_poster(video_path: &str, title: &str, desc: &str) {
-  let script_candidates = [
-    PathBuf::from("scripts/auto_poster/youtube_shorts.js"),
-    PathBuf::from("../scripts/auto_poster/youtube_shorts.js"),
-  ];
-  let script_path = script_candidates
-    .into_iter()
-    .find(|p| p.exists())
-    .unwrap_or_else(|| PathBuf::from("scripts/auto_poster/youtube_shorts.js"));
-
-  let path_env = std::env::var("PATH").unwrap_or_default();
-  let enhanced_path = if cfg!(target_os = "macos") {
-    format!("/opt/homebrew/bin:/usr/local/bin:{}", path_env)
-  } else {
-    path_env
+#[allow(clippy::too_many_arguments)]
+async fn enqueue_processed_clip(
+  app: &AppHandle,
+  video_path: &str,
+  source_url: Option<String>,
+  source_title: &str,
+  virality_score: Option<u8>,
+  reason: Option<String>,
+  metadata: crate::ai::MultiPlatformMetadata,
+  uniqueness: &crate::state::config_models::UniquenessSettings,
+) {
+  let Some(queue) = app.try_state::<crate::publish::queue::PublishQueueState>() else {
+    return;
   };
 
-  let script_status = TokioCommand::new("node")
-    .arg(&script_path)
-    .arg(video_path)
-    .arg(title)
-    .arg(desc)
-    .env("PATH", enhanced_path)
-    .status()
-    .await;
+  let thumbnail_path = extract_video_thumbnail(app, Path::new(video_path)).await;
+  let platforms = &uniqueness.publish_platforms;
+  let yt_enabled = platforms.iter().any(|p| p == "youtube");
+  let tt_enabled = platforms.iter().any(|p| p == "tiktok");
+  let ig_enabled = platforms.iter().any(|p| p == "instagram");
 
-  match script_status {
-    Ok(s) if s.success() => {
-      tracing::info!("Auto-posting completed successfully for {}!", video_path)
+  let scheduled_at = if uniqueness.auto_post_enabled {
+    Some(queue.next_drip_slot(uniqueness.drip_interval_hours))
+  } else {
+    None
+  };
+
+  let make_state = |enabled: bool| {
+    let mut state = crate::publish::models::PlatformPostState::new(enabled);
+    if enabled && scheduled_at.is_some() {
+      state.status = crate::publish::models::PublishStatus::Scheduled;
     }
-    Ok(s) => tracing::error!(
-      "Auto-posting script failed with status {} for {}",
-      s,
-      video_path
-    ),
-    Err(e) => tracing::error!("Failed to launch auto-posting script: {}", e),
+    state
+  };
+
+  let item = crate::publish::models::PublishItem {
+    id: uuid::Uuid::new_v4().to_string(),
+    video_path: video_path.to_string(),
+    thumbnail_path,
+    source_title: source_title.to_string(),
+    source_url,
+    virality_score,
+    hook_text: metadata.hook_text,
+    reason,
+    youtube_title: metadata.youtube_title,
+    youtube_description: metadata.youtube_description,
+    tiktok_caption: metadata.tiktok_caption,
+    instagram_caption: metadata.instagram_caption,
+    hashtags: metadata.hashtags,
+    scheduled_at,
+    created_at: crate::publish::queue::now_epoch_secs(),
+    youtube: make_state(yt_enabled),
+    tiktok: make_state(tt_enabled),
+    instagram: make_state(ig_enabled),
+  };
+
+  queue.add(app, item);
+  tracing::info!("Enqueued clip into Publish Studio: {}", video_path);
+}
+
+async fn transcribe_with_provider(
+  ai: &AiSettings,
+  provider: &str,
+  audio_path: &Path,
+) -> Result<String, String> {
+  match provider {
+    "groq" => {
+      let key = if !ai.groq_api_key.is_empty() {
+        &ai.groq_api_key
+      } else {
+        &ai.deepseek_api_key
+      };
+      crate::ai::groq::transcribe_audio(key, audio_path).await
+    }
+    "openai" if !ai.openai_api_key.trim().is_empty() => {
+      crate::ai::openai::transcribe_audio(&ai.openai_api_key, audio_path).await
+    }
+    _ => crate::ai::gemini::transcribe_audio(&ai.gemini_api_key, audio_path).await,
   }
 }
 
@@ -593,26 +702,17 @@ fn validate_uniqueness_files(uniqueness: &mut crate::state::config_models::Uniqu
 async fn run_ai_shorts_extraction(
   app: &AppHandle,
   dest_path: &str,
+  source_url: &str,
+  source_title: &str,
   ai: &AiSettings,
   uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<(), String> {
-  let paths_manager = app.state::<crate::paths::PathsManager>();
-  let bin_dir = paths_manager.bin_dir();
-  let separator = if cfg!(windows) { ';' } else { ':' };
-  let path_env = std::env::var("PATH").unwrap_or_default();
-  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
-
+  let (ffmpeg_path, new_path) = ffmpeg_bin_and_path(app);
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3");
   let srt_path = video_path.with_extension("srt");
 
   // 1. Extract audio for transcription
-  let ffmpeg_exe = if cfg!(windows) {
-    "ffmpeg.exe"
-  } else {
-    "ffmpeg"
-  };
-  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
   let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args([
@@ -636,29 +736,15 @@ async fn run_ai_shorts_extraction(
     return Err("FFmpeg failed to extract audio from video for shorts transcription".to_string());
   }
 
-  // 2. Transcribe
-  let srt_content = if uniqueness.caption_provider == "groq" {
-    let key = if !ai.groq_api_key.is_empty() {
-      &ai.groq_api_key
-    } else {
-      &ai.deepseek_api_key
-    };
-    crate::ai::groq::transcribe_audio(key, &audio_path).await?
-  } else if uniqueness.caption_provider == "gemini" {
-    crate::ai::gemini::transcribe_audio(&ai.gemini_api_key, &audio_path).await?
-  } else {
-    crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
-  };
+  // 2. Transcribe (Gemini-first default)
+  let srt_content = transcribe_with_provider(ai, &uniqueness.caption_provider, &audio_path).await?;
   tokio::fs::write(&srt_path, &srt_content)
     .await
     .map_err(|e| e.to_string())?;
 
-  // 3. Identify segments using DeepSeek / Groq
-  let llm_key =
-    get_llm_key(ai).ok_or("No DeepSeek or Groq API key configured for viral shorts extraction")?;
+  // 3. Identify highest-retention viral segments (Gemini-first with DeepSeek/Groq fallback)
   let num_clips = uniqueness.num_shorts.clamp(1, 10);
-  let segments =
-    crate::ai::shorts::identify_viral_segments(llm_key, &srt_content, num_clips).await?;
+  let segments = crate::ai::identify_viral_segments_auto(ai, &srt_content, num_clips).await?;
 
   let parent_dir = video_path.parent().unwrap_or_else(|| Path::new("."));
   let base_stem = video_path
@@ -666,69 +752,82 @@ async fn run_ai_shorts_extraction(
     .and_then(|s| s.to_str())
     .unwrap_or("video");
 
-  // 4. Extract and process each segment
+  // 4. Extract, style (9:16 + Hormozi captions + 3s hook banner), and queue each viral short
   for (i, segment) in segments.iter().enumerate() {
     let output_name = format!("{}_short_{}.mp4", base_stem, i + 1);
     let output_path = parent_dir.join(output_name);
 
-    // Create segment-specific shifted SRT so subtitles are properly aligned with the cut frames
     let seg_start = parse_srt_timestamp(&segment.start_time).unwrap_or(0.0);
     let seg_end = parse_srt_timestamp(&segment.end_time).unwrap_or(seg_start + 45.0);
     let seg_srt_content = slice_and_shift_srt(&srt_content, seg_start, seg_end);
-    let seg_srt_path = parent_dir.join(format!("{}_short_{}.srt", base_stem, i + 1));
     let has_seg_srt = !seg_srt_content.trim().is_empty();
-    if has_seg_srt {
-      let _ = tokio::fs::write(&seg_srt_path, &seg_srt_content).await;
-    }
 
-    // For vertical crop: crop=ih*(9/16):ih
-    let mut filters = vec!["crop=ih*(9/16):ih".to_string()];
-    if uniqueness.flip_horizontal {
-      filters.push("hflip".to_string());
-    }
-
-    if has_seg_srt {
-      let escaped_srt = seg_srt_path
-        .to_str()
-        .unwrap_or("")
-        .replace('\\', "/")
-        .replace(':', "\\:")
-        .replace('\'', "'\\\\\\''");
-      filters.push(format!(
-        "subtitles='{}':force_style='{}'",
-        escaped_srt, ai.caption_style
-      ));
-    }
-
-    let filter_chain = filters.join(",");
-
-    let args = vec![
-      "-ss".to_string(),
-      segment.start_time.clone(),
-      "-to".to_string(),
-      segment.end_time.clone(),
-      "-i".to_string(),
-      dest_path.to_string(),
-      "-vf".to_string(),
-      filter_chain,
-      "-c:v".to_string(),
-      "libx264".to_string(),
-      "-pix_fmt".to_string(),
-      "yuv420p".to_string(),
-      "-c:a".to_string(),
-      "aac".to_string(),
-      "-b:a".to_string(),
-      "192k".to_string(),
-      output_path.to_str().unwrap().to_string(),
-      "-y".to_string(),
-    ];
-
-    let ffmpeg_exe = if cfg!(windows) {
-      "ffmpeg.exe"
+    let clip_title = if !segment.title.trim().is_empty() {
+      segment.title.clone()
     } else {
-      "ffmpeg"
+      format!("{} Part {}", source_title, i + 1)
     };
-    let ffmpeg_path = bin_dir.join(ffmpeg_exe);
+
+    // Generate platform-tailored YT Shorts + TikTok + IG Reels metadata & hook
+    let mut metadata = if uniqueness.ai_metadata && crate::ai::has_any_llm_key(ai) {
+      crate::ai::generate_metadata_auto(ai, &clip_title, &seg_srt_content)
+        .await
+        .unwrap_or_else(|_| crate::ai::MultiPlatformMetadata::fallback(&clip_title))
+    } else {
+      crate::ai::MultiPlatformMetadata::fallback(&clip_title)
+    };
+
+    if let Some(seg_hook) = segment
+      .hook_text
+      .as_deref()
+      .filter(|h| !h.trim().is_empty())
+    {
+      metadata.hook_text = seg_hook.trim().to_uppercase();
+    }
+
+    // Build subtitle overlay file (Hormozi animated ASS + 3s hook banner OR classic SRT)
+    let use_ass = uniqueness.hormozi_captions || uniqueness.hook_banner_enabled;
+    let sub_path = if use_ass {
+      parent_dir.join(format!("{}_short_{}.ass", base_stem, i + 1))
+    } else {
+      parent_dir.join(format!("{}_short_{}.srt", base_stem, i + 1))
+    };
+
+    let hook_opt = if uniqueness.hook_banner_enabled && !metadata.hook_text.trim().is_empty() {
+      Some(metadata.hook_text.as_str())
+    } else {
+      None
+    };
+
+    let wrote_sub = if use_ass && (has_seg_srt || hook_opt.is_some()) {
+      let ass_doc = crate::ai::captions::build_hormozi_ass(
+        &seg_srt_content,
+        hook_opt,
+        uniqueness.ai_captions && has_seg_srt,
+      );
+      tokio::fs::write(&sub_path, ass_doc).await.is_ok()
+    } else if has_seg_srt && uniqueness.ai_captions {
+      tokio::fs::write(&sub_path, &seg_srt_content).await.is_ok()
+    } else {
+      false
+    };
+
+    // Always ensure 9:16 vertical framing for extracted shorts
+    let mut short_uniqueness = uniqueness.clone();
+    if !short_uniqueness.split_screen_enabled {
+      short_uniqueness.auto_crop = true;
+    }
+
+    let args = build_advanced_ffmpeg_args(
+      dest_path,
+      output_path.to_str().ok_or("Invalid short output path")?,
+      &short_uniqueness,
+      if wrote_sub { sub_path.to_str() } else { None },
+      use_ass,
+      Some(&ai.caption_style),
+      Some((&segment.start_time, &segment.end_time)),
+    );
+
     let status = TokioCommand::new(&ffmpeg_path)
       .env("PATH", &new_path)
       .args(&args)
@@ -736,8 +835,8 @@ async fn run_ai_shorts_extraction(
       .await
       .map_err(|e| format!("FFmpeg short extraction failed: {}", e))?;
 
-    if has_seg_srt {
-      let _ = tokio::fs::remove_file(&seg_srt_path).await;
+    if wrote_sub {
+      let _ = tokio::fs::remove_file(&sub_path).await;
     }
 
     if !status.success() {
@@ -747,8 +846,8 @@ async fn run_ai_shorts_extraction(
       ));
     }
 
-    // Optional: If dubbing is enabled, dub each short with its segment transcript
-    if uniqueness.dubbing_enabled && get_llm_key(ai).is_some() {
+    // Optional: Dub each short with its segment transcript
+    if uniqueness.dubbing_enabled && crate::ai::has_any_llm_key(ai) {
       let dub_transcript = if has_seg_srt {
         &seg_srt_content
       } else {
@@ -758,20 +857,23 @@ async fn run_ai_shorts_extraction(
         crate::ai::dubbing::run_ai_dubbing(app, &output_path, dub_transcript, ai, uniqueness).await;
     }
 
-    // Optional: Auto-post each generated short
-    if uniqueness.auto_post_enabled {
-      let short_title = if !segment.title.trim().is_empty() {
-        segment.title.clone()
-      } else {
-        format!("{} Part {}", base_stem, i + 1)
-      };
-      let short_desc = format!("{} #shorts", short_title);
-      tracing::info!("Auto-posting generated short: {}", output_path.display());
-      invoke_auto_poster(output_path.to_str().unwrap(), &short_title, &short_desc).await;
+    // Queue clip into the multi-platform Publish Studio (with optional staggered drip schedule)
+    if uniqueness.auto_queue_publish || uniqueness.auto_post_enabled {
+      enqueue_processed_clip(
+        app,
+        output_path.to_str().unwrap_or_default(),
+        Some(source_url.to_string()),
+        &clip_title,
+        Some(segment.virality_score),
+        segment.reason.clone(),
+        metadata,
+        uniqueness,
+      )
+      .await;
     }
   }
 
-  // Cleanup
+  // Cleanup temp files
   let _ = tokio::fs::remove_file(audio_path).await;
   let _ = tokio::fs::remove_file(srt_path).await;
 
@@ -784,21 +886,10 @@ async fn run_ai_transcription(
   ai: &AiSettings,
   uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<String, String> {
-  let paths_manager = app.state::<crate::paths::PathsManager>();
-  let bin_dir = paths_manager.bin_dir();
-  let separator = if cfg!(windows) { ';' } else { ':' };
-  let path_env = std::env::var("PATH").unwrap_or_default();
-  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
-
+  let (ffmpeg_path, new_path) = ffmpeg_bin_and_path(app);
   let video_path = PathBuf::from(dest_path);
   let audio_path = video_path.with_extension("mp3_tmp");
 
-  let ffmpeg_exe = if cfg!(windows) {
-    "ffmpeg.exe"
-  } else {
-    "ffmpeg"
-  };
-  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
   let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args([
@@ -822,102 +913,54 @@ async fn run_ai_transcription(
     return Err("FFmpeg failed to extract audio from video for transcription".to_string());
   }
 
-  let srt_content = if uniqueness.caption_provider == "groq" {
-    let key = if !ai.groq_api_key.is_empty() {
-      &ai.groq_api_key
-    } else {
-      &ai.deepseek_api_key // Fallback to Deepseek field if it contains a Groq key
-    };
-    crate::ai::groq::transcribe_audio(key, &audio_path).await?
-  } else if uniqueness.caption_provider == "gemini" {
-    crate::ai::gemini::transcribe_audio(&ai.gemini_api_key, &audio_path).await?
-  } else {
-    crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
-  };
-
+  let srt_content = transcribe_with_provider(ai, &uniqueness.caption_provider, &audio_path).await;
   let _ = tokio::fs::remove_file(audio_path).await;
-  Ok(srt_content)
+  srt_content
 }
 
-async fn run_ai_captions(
+async fn run_ai_captions_and_filters(
   app: &AppHandle,
   dest_path: &str,
+  srt_content: &str,
+  hook_banner: Option<&str>,
   ai: &AiSettings,
   uniqueness: &crate::state::config_models::UniquenessSettings,
 ) -> Result<(), String> {
-  let paths_manager = app.state::<crate::paths::PathsManager>();
-  let bin_dir = paths_manager.bin_dir();
-  let separator = if cfg!(windows) { ';' } else { ':' };
-  let path_env = std::env::var("PATH").unwrap_or_default();
-  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
-
+  let (ffmpeg_path, new_path) = ffmpeg_bin_and_path(app);
   let video_path = PathBuf::from(dest_path);
-  let audio_path = video_path.with_extension("mp3");
-  let srt_path = video_path.with_extension("srt");
-
-  // 1. Extract audio
-  let ffmpeg_exe = if cfg!(windows) {
-    "ffmpeg.exe"
+  let use_ass = uniqueness.hormozi_captions || hook_banner.is_some();
+  let sub_path = if use_ass {
+    video_path.with_extension("hormozi.ass")
   } else {
-    "ffmpeg"
+    video_path.with_extension("srt")
   };
-  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
-  let status = TokioCommand::new(&ffmpeg_path)
-    .env("PATH", &new_path)
-    .args([
-      "-i",
-      dest_path,
-      "-vn",
-      "-ar",
-      "16000",
-      "-ac",
-      "1",
-      "-c:a",
-      "libmp3lame",
-      audio_path.to_str().ok_or("Invalid audio path")?,
-      "-y",
-    ])
-    .status()
-    .await
-    .map_err(|e| format!("FFmpeg extract failed: {}", e))?;
 
-  if !status.success() {
-    return Err("FFmpeg extract failed".to_string());
+  if use_ass {
+    let ass_doc = crate::ai::captions::build_hormozi_ass(
+      srt_content,
+      hook_banner,
+      uniqueness.ai_captions && !srt_content.trim().is_empty(),
+    );
+    tokio::fs::write(&sub_path, ass_doc)
+      .await
+      .map_err(|e| e.to_string())?;
+  } else {
+    tokio::fs::write(&sub_path, srt_content)
+      .await
+      .map_err(|e| e.to_string())?;
   }
 
-  // 2. Transcribe
-  let srt_content = if uniqueness.caption_provider == "groq" {
-    let key = if !ai.groq_api_key.is_empty() {
-      &ai.groq_api_key
-    } else {
-      &ai.deepseek_api_key // Fallback to Deepseek field if it contains a Groq key
-    };
-    crate::ai::groq::transcribe_audio(key, &audio_path).await?
-  } else if uniqueness.caption_provider == "gemini" {
-    crate::ai::gemini::transcribe_audio(&ai.gemini_api_key, &audio_path).await?
-  } else {
-    crate::ai::openai::transcribe_audio(&ai.openai_api_key, &audio_path).await?
-  };
-  tokio::fs::write(&srt_path, srt_content)
-    .await
-    .map_err(|e| e.to_string())?;
-
-  // 3. Burn captions
   let final_path = video_path.with_extension("final.mp4");
   let args = build_advanced_ffmpeg_args(
     dest_path,
     final_path.to_str().ok_or("Invalid final path")?,
     uniqueness,
-    srt_path.to_str(),
+    sub_path.to_str(),
+    use_ass,
     Some(&ai.caption_style),
+    None,
   );
 
-  let ffmpeg_exe = if cfg!(windows) {
-    "ffmpeg.exe"
-  } else {
-    "ffmpeg"
-  };
-  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
   let status = TokioCommand::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args(&args)
@@ -925,12 +968,9 @@ async fn run_ai_captions(
     .await
     .map_err(|e| format!("FFmpeg burn failed: {}", e))?;
 
-  // Cleanup
-  let _ = tokio::fs::remove_file(audio_path).await;
-  let _ = tokio::fs::remove_file(srt_path).await;
+  let _ = tokio::fs::remove_file(&sub_path).await;
 
   if status.success() {
-    // Replace original with final
     let _ = tokio::fs::rename(final_path, video_path).await;
     Ok(())
   } else {
@@ -945,27 +985,18 @@ async fn run_basic_uniqueness(
 ) -> Result<(), String> {
   let video_path = std::path::PathBuf::from(dest_path);
   let final_path = video_path.with_extension("uniqueness.mp4");
-
-  let paths_manager = app.state::<crate::paths::PathsManager>();
-  let bin_dir = paths_manager.bin_dir();
-  let separator = if cfg!(windows) { ';' } else { ':' };
-  let path_env = std::env::var("PATH").unwrap_or_default();
-  let new_path = format!("{}{}{}", bin_dir.display(), separator, path_env);
+  let (ffmpeg_path, new_path) = ffmpeg_bin_and_path(app);
 
   let args = build_advanced_ffmpeg_args(
     dest_path,
     final_path.to_str().ok_or("Invalid final path")?,
     uniqueness,
     None,
+    false,
+    None,
     None,
   );
 
-  let ffmpeg_exe = if cfg!(windows) {
-    "ffmpeg.exe"
-  } else {
-    "ffmpeg"
-  };
-  let ffmpeg_path = bin_dir.join(ffmpeg_exe);
   let status = tokio::process::Command::new(&ffmpeg_path)
     .env("PATH", &new_path)
     .args(&args)
@@ -985,10 +1016,21 @@ fn build_advanced_ffmpeg_args(
   dest_path: &str,
   final_path: &str,
   uniqueness: &crate::state::config_models::UniquenessSettings,
-  srt_path: Option<&str>,
+  sub_path: Option<&str>,
+  is_ass: bool,
   caption_style: Option<&str>,
+  segment_trim: Option<(&str, &str)>,
 ) -> Vec<String> {
-  let mut args = vec!["-i".to_string(), dest_path.to_string()];
+  let mut args = Vec::new();
+  if let Some((start, end)) = segment_trim {
+    args.push("-ss".to_string());
+    args.push(start.to_string());
+    args.push("-to".to_string());
+    args.push(end.to_string());
+  }
+  args.push("-i".to_string());
+  args.push(dest_path.to_string());
+
   let mut filter_complex = Vec::new();
   let mut video_in = "0:v".to_string();
   let mut audio_in = "0:a".to_string();
@@ -996,23 +1038,44 @@ fn build_advanced_ffmpeg_args(
   let mut has_complex = false;
   let mut has_audio_filter = false;
 
-  // Split Screen
+  // Split Screen (loops short gameplay infinitely and terminates when main clip ends!)
   if uniqueness.split_screen_enabled && !uniqueness.split_screen_video_path.is_empty() {
+    args.push("-stream_loop".to_string());
+    args.push("-1".to_string());
     args.push("-i".to_string());
     args.push(uniqueness.split_screen_video_path.clone());
 
-    filter_complex.push(format!("[{}]scale=1080:960:force_original_aspect_ratio=decrease,pad=1080:960:(ow-iw)/2:(oh-ih)/2[v_top]", video_in));
     filter_complex.push(format!(
-      "[{}:v]scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960[v_bottom]",
+      "[{}]scale=1080:960:force_original_aspect_ratio=decrease,pad=1080:960:(ow-iw)/2:(oh-ih)/2,setsar=1[v_top]",
+      video_in
+    ));
+    filter_complex.push(format!(
+      "[{}:v]scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960,setsar=1[v_bottom]",
       current_input_idx
     ));
-    filter_complex.push("[v_top][v_bottom]vstack=inputs=2[v_stacked]".to_string());
+    filter_complex.push("[v_top][v_bottom]vstack=inputs=2:shortest=1[v_stacked]".to_string());
     video_in = "v_stacked".to_string();
     current_input_idx += 1;
     has_complex = true;
   } else if uniqueness.auto_crop {
-    // Auto Crop
-    filter_complex.push(format!("[{}]crop=ih*(9/16):ih[v_crop]", video_in));
+    if uniqueness.crop_mode == "blur_pad" {
+      // Blurred 1080x1920 background + full uncropped center foreground (ideal for multi-speaker podcasts)
+      filter_complex.push(format!("[{}]split=2[v_bg_src][v_fg_src]", video_in));
+      filter_complex.push(
+        "[v_bg_src]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:4,setsar=1[v_bg]"
+          .to_string(),
+      );
+      filter_complex.push(
+        "[v_fg_src]scale=1080:1920:force_original_aspect_ratio=decrease,setsar=1[v_fg]".to_string(),
+      );
+      filter_complex.push("[v_bg][v_fg]overlay=(W-w)/2:(H-h)/2[v_crop]".to_string());
+    } else {
+      // Safe scale-to-fill 9:16 (works on both 16:9 landscape and already-vertical videos!)
+      filter_complex.push(format!(
+        "[{}]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[v_crop]",
+        video_in
+      ));
+    }
     video_in = "v_crop".to_string();
     has_complex = true;
   }
@@ -1034,16 +1097,22 @@ fn build_advanced_ffmpeg_args(
     has_audio_filter = true;
   }
 
-  // Subtitles
-  if let (Some(srt), Some(style)) = (srt_path, caption_style) {
-    let escaped_srt = srt
+  // Subtitles (Hormozi ASS / Hook Banner OR classic SRT)
+  if let Some(path) = sub_path {
+    let escaped = path
       .replace('\\', "/")
       .replace(':', "\\:")
       .replace('\'', "'\\\\\\''");
-    filter_complex.push(format!(
-      "[{}]subtitles='{}':force_style='{}'[v_sub]",
-      video_in, escaped_srt, style
-    ));
+    if is_ass {
+      filter_complex.push(format!("[{}]ass='{}'[v_sub]", video_in, escaped));
+    } else if let Some(style) = caption_style {
+      filter_complex.push(format!(
+        "[{}]subtitles='{}':force_style='{}'[v_sub]",
+        video_in, escaped, style
+      ));
+    } else {
+      filter_complex.push(format!("[{}]subtitles='{}'[v_sub]", video_in, escaped));
+    }
     video_in = "v_sub".to_string();
     has_complex = true;
   }
@@ -1052,15 +1121,17 @@ fn build_advanced_ffmpeg_args(
   if !uniqueness.watermark_text.is_empty() {
     let escaped_text = uniqueness.watermark_text.replace('\'', "\\'");
     filter_complex.push(format!(
-      "[{}]drawtext=text='{}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-th-20[v_water]",
+      "[{}]drawtext=text='{}':fontcolor=white@0.85:fontsize=34:x=(w-text_w)/2:y=h-th-110[v_water]",
       video_in, escaped_text
     ));
     video_in = "v_water".to_string();
     has_complex = true;
   }
 
-  // Background Audio
+  // Background Audio (loops seamlessly if shorter than main video)
   if uniqueness.background_audio_enabled && !uniqueness.background_audio_path.is_empty() {
+    args.push("-stream_loop".to_string());
+    args.push("-1".to_string());
     args.push("-i".to_string());
     args.push(uniqueness.background_audio_path.clone());
     filter_complex.push(format!(
@@ -1080,8 +1151,15 @@ fn build_advanced_ffmpeg_args(
     args.push("-map".to_string());
     if !has_audio_filter {
       args.push("0:a?".to_string());
-      args.push("-c:a".to_string());
-      args.push("copy".to_string());
+      if segment_trim.is_some() {
+        args.push("-c:a".to_string());
+        args.push("aac".to_string());
+        args.push("-b:a".to_string());
+        args.push("192k".to_string());
+      } else {
+        args.push("-c:a".to_string());
+        args.push("copy".to_string());
+      }
     } else {
       args.push(format!("[{}]", audio_in));
       args.push("-c:a".to_string());
@@ -1091,8 +1169,14 @@ fn build_advanced_ffmpeg_args(
     }
     args.push("-c:v".to_string());
     args.push("libx264".to_string());
+    args.push("-preset".to_string());
+    args.push("veryfast".to_string());
+    args.push("-crf".to_string());
+    args.push("20".to_string());
     args.push("-pix_fmt".to_string());
     args.push("yuv420p".to_string());
+    args.push("-movflags".to_string());
+    args.push("+faststart".to_string());
   } else {
     args.push("-c:v".to_string());
     args.push("copy".to_string());
@@ -1108,6 +1192,7 @@ fn build_advanced_ffmpeg_args(
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::state::config_models::UniquenessSettings;
 
   #[test]
   fn test_parse_clock_secs() {
@@ -1136,5 +1221,43 @@ mod tests {
     assert!(shifted.contains("Hello World"));
     assert!(shifted.contains("00:00:10,000 --> 00:00:15,000"));
     assert!(shifted.contains("Second Line"));
+  }
+
+  #[test]
+  fn test_build_advanced_ffmpeg_args_blur_pad_and_ass() {
+    let cfg = UniquenessSettings {
+      enabled: true,
+      auto_crop: true,
+      crop_mode: "blur_pad".into(),
+      ..Default::default()
+    };
+    let args = build_advanced_ffmpeg_args(
+      "in.mp4",
+      "out.mp4",
+      &cfg,
+      Some("/tmp/captions.ass"),
+      true,
+      None,
+      Some(("00:00:10", "00:00:45")),
+    );
+    let joined = args.join(" ");
+    assert!(joined.contains("-ss 00:00:10 -to 00:00:45"));
+    assert!(joined.contains("boxblur=25:4"));
+    assert!(joined.contains("ass='/tmp/captions.ass'"));
+    assert!(joined.contains("-movflags +faststart"));
+  }
+
+  #[test]
+  fn test_build_advanced_ffmpeg_args_split_screen_loops_gameplay() {
+    let cfg = UniquenessSettings {
+      enabled: true,
+      split_screen_enabled: true,
+      split_screen_video_path: "/tmp/gameplay.mp4".into(),
+      ..Default::default()
+    };
+    let args = build_advanced_ffmpeg_args("in.mp4", "out.mp4", &cfg, None, false, None, None);
+    let joined = args.join(" ");
+    assert!(joined.contains("-stream_loop -1 -i /tmp/gameplay.mp4"));
+    assert!(joined.contains("vstack=inputs=2:shortest=1"));
   }
 }

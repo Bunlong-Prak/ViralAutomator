@@ -45,8 +45,11 @@ export interface UniquenessSettings {
   enabled: boolean;
   flipHorizontal: boolean;
   autoCrop: boolean;
+  cropMode: 'crop' | 'blur_pad';
   watermarkText: string;
   aiCaptions: boolean;
+  hormoziCaptions: boolean;
+  hookBannerEnabled: boolean;
   aiMetadata: boolean;
   captionProvider: string;
   aiShortsMode: boolean;
@@ -61,6 +64,9 @@ export interface UniquenessSettings {
   backgroundAudioEnabled: boolean;
   backgroundAudioPath: string;
   autoPostEnabled: boolean;
+  autoQueuePublish: boolean;
+  publishPlatforms: string[];
+  dripIntervalHours: number;
 }
 
 export interface AudioOutputSettings {
@@ -212,11 +218,14 @@ export const defaultOutputSettings: OutputSettings = {
     uniqueness: {
       enabled: false,
       flipHorizontal: false,
-      autoCrop: false,
+      autoCrop: true,
+      cropMode: 'crop',
       watermarkText: '',
-      aiCaptions: false,
-      aiMetadata: false,
-      captionProvider: 'openai',
+      aiCaptions: true,
+      hormoziCaptions: true,
+      hookBannerEnabled: true,
+      aiMetadata: true,
+      captionProvider: 'gemini',
       aiShortsMode: false,
       numShorts: 3,
       dubbingEnabled: false,
@@ -229,6 +238,9 @@ export const defaultOutputSettings: OutputSettings = {
       backgroundAudioEnabled: false,
       backgroundAudioPath: '',
       autoPostEnabled: false,
+      autoQueuePublish: true,
+      publishPlatforms: ['youtube', 'tiktok', 'instagram'],
+      dripIntervalHours: 4,
     },
   },
   audio: {

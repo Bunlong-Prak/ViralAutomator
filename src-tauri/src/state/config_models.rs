@@ -109,8 +109,11 @@ pub struct UniquenessSettings {
   pub enabled: bool,
   pub flip_horizontal: bool,
   pub auto_crop: bool,
+  pub crop_mode: String,
   pub watermark_text: String,
   pub ai_captions: bool,
+  pub hormozi_captions: bool,
+  pub hook_banner_enabled: bool,
   pub ai_metadata: bool,
   pub caption_provider: String,
   pub ai_shorts_mode: bool,
@@ -125,6 +128,9 @@ pub struct UniquenessSettings {
   pub background_audio_enabled: bool,
   pub background_audio_path: String,
   pub auto_post_enabled: bool,
+  pub auto_queue_publish: bool,
+  pub publish_platforms: Vec<String>,
+  pub drip_interval_hours: u32,
 }
 
 impl Default for UniquenessSettings {
@@ -132,11 +138,14 @@ impl Default for UniquenessSettings {
     Self {
       enabled: false,
       flip_horizontal: false,
-      auto_crop: false,
+      auto_crop: true,
+      crop_mode: "crop".into(),
       watermark_text: String::new(),
-      ai_captions: false,
-      ai_metadata: false,
-      caption_provider: "openai".into(),
+      ai_captions: true,
+      hormozi_captions: true,
+      hook_banner_enabled: true,
+      ai_metadata: true,
+      caption_provider: "gemini".into(),
       ai_shorts_mode: false,
       num_shorts: 3,
       dubbing_enabled: false,
@@ -149,6 +158,9 @@ impl Default for UniquenessSettings {
       background_audio_enabled: false,
       background_audio_path: String::new(),
       auto_post_enabled: false,
+      auto_queue_publish: true,
+      publish_platforms: vec!["youtube".into(), "tiktok".into(), "instagram".into()],
+      drip_interval_hours: 4,
     }
   }
 }

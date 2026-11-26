@@ -101,8 +101,11 @@ export type UniquenessOverrides = {
   enabled?: boolean;
   flipHorizontal?: boolean;
   autoCrop?: boolean;
+  cropMode?: 'crop' | 'blur_pad';
   watermarkText?: string;
   aiCaptions?: boolean;
+  hormoziCaptions?: boolean;
+  hookBannerEnabled?: boolean;
   aiMetadata?: boolean;
   captionProvider?: string;
   aiShortsMode?: boolean;
@@ -117,6 +120,9 @@ export type UniquenessOverrides = {
   backgroundAudioEnabled?: boolean;
   backgroundAudioPath?: string;
   autoPostEnabled?: boolean;
+  autoQueuePublish?: boolean;
+  publishPlatforms?: string[];
+  dripIntervalHours?: number;
 };
 
 export type Section = {
