@@ -21,6 +21,7 @@ import SettingsDownloadsTab from './views/app/settings/SettingsDownloadsTab.vue'
 import SettingsNetworkTab from './views/app/settings/SettingsNetworkTab.vue';
 import SettingsAiTab from './views/app/settings/SettingsAiTab.vue';
 import SettingsSystemTab from './views/app/settings/SettingsSystemTab.vue';
+import PublishStudioView from './views/app/PublishStudioView.vue';
 
 const routes = [
   {
@@ -107,6 +108,12 @@ const routes = [
         path: 'subtitles',
         name: 'subtitles',
         component: SubtitleView,
+        meta: { index: 1 },
+      },
+      {
+        path: 'studio',
+        name: 'studio',
+        component: PublishStudioView,
         meta: { index: 1 },
       },
       {

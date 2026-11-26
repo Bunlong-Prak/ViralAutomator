@@ -218,6 +218,36 @@
                         />
                     </div>
 
+                    <div
+                        v-if="outputState.video.uniqueness.autoCrop"
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-crop-mode')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.cropMode.label")
+                            }}
+                        </label>
+                        <select
+                            :id="fieldId('uniqueness-crop-mode')"
+                            v-model="outputState.video.uniqueness.cropMode"
+                            class="select select-bordered rounded-xl w-full"
+                        >
+                            <option value="crop">
+                                {{
+                                    t("settings.output.tabs.uniqueness.cropMode.options.crop")
+                                }}
+                            </option>
+                            <option value="blur_pad">
+                                {{
+                                    t("settings.output.tabs.uniqueness.cropMode.options.blurPad")
+                                }}
+                            </option>
+                        </select>
+                    </div>
+
                     <div class="mb-4 flex flex-col gap-1">
                         <label
                             class="font-semibold"
@@ -240,6 +270,53 @@
                                 t(
                                     "settings.output.tabs.uniqueness.aiCaptions.hint",
                                 )
+                            }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="outputState.video.uniqueness.aiCaptions"
+                        class="mb-4 flex flex-col gap-1"
+                    >
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-hormozi-captions')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.hormoziCaptions.label")
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-hormozi-captions')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.hormoziCaptions"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t("settings.output.tabs.uniqueness.hormoziCaptions.hint")
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
+                            :for="fieldId('uniqueness-hook-banner')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.hookBanner.label")
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-hook-banner')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.hookBannerEnabled"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t("settings.output.tabs.uniqueness.hookBanner.hint")
                             }}
                         </p>
                     </div>
@@ -723,6 +800,28 @@
                     <div class="mb-4 flex flex-col gap-1">
                         <label
                             class="font-semibold"
+                            :for="fieldId('uniqueness-auto-queue-publish')"
+                        >
+                            {{
+                                t("settings.output.tabs.uniqueness.autoQueuePublish.label")
+                            }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-auto-queue-publish')"
+                            type="checkbox"
+                            v-model="outputState.video.uniqueness.autoQueuePublish"
+                            class="toggle toggle-primary my-1"
+                        />
+                        <p class="label">
+                            {{
+                                t("settings.output.tabs.uniqueness.autoQueuePublish.hint")
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4 flex flex-col gap-1">
+                        <label
+                            class="font-semibold"
                             :for="fieldId('uniqueness-auto-post')"
                         >
                             {{
@@ -745,6 +844,62 @@
                                     "settings.output.tabs.uniqueness.autoPost.hint",
                                 )
                             }}
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="outputState.video.uniqueness.autoQueuePublish || outputState.video.uniqueness.autoPostEnabled"
+                        class="mb-4 flex flex-col gap-2"
+                    >
+                        <span class="font-semibold">
+                            {{ t("settings.output.tabs.uniqueness.publishPlatforms.label") }}
+                        </span>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="label cursor-pointer gap-2">
+                                <input
+                                    type="checkbox"
+                                    value="youtube"
+                                    v-model="outputState.video.uniqueness.publishPlatforms"
+                                    class="checkbox checkbox-primary checkbox-sm"
+                                />
+                                <span class="label-text">{{ t("settings.output.tabs.uniqueness.publishPlatforms.youtube") }}</span>
+                            </label>
+                            <label class="label cursor-pointer gap-2">
+                                <input
+                                    type="checkbox"
+                                    value="tiktok"
+                                    v-model="outputState.video.uniqueness.publishPlatforms"
+                                    class="checkbox checkbox-primary checkbox-sm"
+                                />
+                                <span class="label-text">{{ t("settings.output.tabs.uniqueness.publishPlatforms.tiktok") }}</span>
+                            </label>
+                            <label class="label cursor-pointer gap-2">
+                                <input
+                                    type="checkbox"
+                                    value="instagram"
+                                    v-model="outputState.video.uniqueness.publishPlatforms"
+                                    class="checkbox checkbox-primary checkbox-sm"
+                                />
+                                <span class="label-text">{{ t("settings.output.tabs.uniqueness.publishPlatforms.instagram") }}</span>
+                            </label>
+                        </div>
+
+                        <label
+                            class="font-semibold mt-2"
+                            :for="fieldId('uniqueness-drip-interval')"
+                        >
+                            {{ t("settings.output.tabs.uniqueness.dripIntervalHours.label") }}
+                        </label>
+                        <input
+                            :id="fieldId('uniqueness-drip-interval')"
+                            type="number"
+                            min="1"
+                            max="48"
+                            v-model.number="outputState.video.uniqueness.dripIntervalHours"
+                            class="input input-bordered rounded-xl w-full max-w-40"
+                        />
+                        <p class="label">
+                            {{ t("settings.output.tabs.uniqueness.dripIntervalHours.hint") }}
                         </p>
                     </div>
 

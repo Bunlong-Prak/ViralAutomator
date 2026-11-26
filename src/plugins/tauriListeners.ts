@@ -6,6 +6,7 @@ import { registerUpdaterListeners } from '../tauri/listeners/updater';
 import { registerDiagnosticsListeners } from '../tauri/listeners/diagnostics.ts';
 import { registerAppListeners } from '../tauri/listeners/app.ts';
 import { registerShortcutListeners } from '../tauri/listeners/shortcuts.ts';
+import { registerPublishListeners } from '../tauri/listeners/publish.ts';
 
 export default {
   install() {
@@ -17,5 +18,6 @@ export default {
     registerUpdaterListeners();
     registerDiagnosticsListeners();
     registerShortcutListeners();
+    registerPublishListeners();
   },
 };

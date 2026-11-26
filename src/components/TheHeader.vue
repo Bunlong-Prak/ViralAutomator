@@ -25,14 +25,18 @@
     </form>
     <router-link class="btn btn-subtle" :title="t('layout.header.nav.settings')" :to="{ name: 'settings.downloads' }">
       <span class="sr-only">{{ t('layout.header.nav.settings') }}</span>
-      <cog8-tooth-icon class="w-6 h-6"/>
+      <cog8-tooth-icon class="w-6 h-6" aria-hidden="true"/>
+    </router-link>
+    <router-link class="btn btn-secondary gap-2" :title="t('layout.header.nav.studio')" :to="{ name: 'studio' }">
+      <rocket-launch-icon class="w-5 h-5" aria-hidden="true"/>
+      <span class="hidden sm:inline">{{ t('layout.header.nav.studio') }}</span>
     </router-link>
   </header>
 </template>
 
 <script setup lang="ts">
 
-import { Cog8ToothIcon } from '@heroicons/vue/24/outline';
+import { Cog8ToothIcon, RocketLaunchIcon } from '@heroicons/vue/24/outline';
 import { useMediaStore } from '../stores/media/media';
 import { ref, computed, onMounted } from 'vue';
 import { useClipboard } from '../composables/useClipboard';

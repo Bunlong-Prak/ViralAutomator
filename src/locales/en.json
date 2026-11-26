@@ -26,7 +26,8 @@
     "header": {
       "placeholder": "Enter a video/playlist URL to add to the queue",
       "nav": {
-        "settings": "App Settings"
+        "settings": "App Settings",
+        "studio": "Publish Studio"
       }
     },
     "footer": {
@@ -639,11 +640,26 @@
             "label": "Horizontal flip"
           },
           "crop": {
-            "label": "Auto crop (9:16)"
+            "label": "Auto vertical 9:16 framing"
+          },
+          "cropMode": {
+            "label": "Vertical framing style:",
+            "options": {
+              "crop": "Smart 9:16 Fill Crop (1080×1920)",
+              "blurPad": "9:16 Blurred Background (Best for podcasts & interviews)"
+            }
           },
           "aiCaptions": {
             "label": "AI Auto-captions",
             "hint": "Automatically transcribe audio and burn subtitles onto the video."
+          },
+          "hormoziCaptions": {
+            "label": "Hormozi word-by-word animated captions",
+            "hint": "High-retention 2–4 word uppercase pop-in captions with active yellow word highlights."
+          },
+          "hookBanner": {
+            "label": "3-second viral hook banner",
+            "hint": "Pin a bold AI-generated attention hook at the top of the video for the first 3 seconds."
           },
           "captionProvider": {
             "label": "Caption Provider:",
@@ -718,8 +734,22 @@
             "hint": "Absolute path to an audio file."
           },
           "autoPost": {
-            "label": "Headless Auto-Posting",
-            "hint": "Automatically upload the final video to YouTube Shorts."
+            "label": "Auto-drip publish after download",
+            "hint": "Automatically stagger uploads to selected platforms via the Publish Studio scheduler."
+          },
+          "autoQueuePublish": {
+            "label": "Send clips to Publish Studio queue",
+            "hint": "Save processed videos and AI-generated YT/TikTok/IG metadata in the Publish Studio for review or drip scheduling."
+          },
+          "publishPlatforms": {
+            "label": "Target platforms:",
+            "youtube": "YouTube Shorts",
+            "tiktok": "TikTok",
+            "instagram": "Instagram Reels"
+          },
+          "dripIntervalHours": {
+            "label": "Drip-feed spacing (hours):",
+            "hint": "Minimum hours between automatic uploads to protect channel reach."
           }
         }
       }
@@ -736,8 +766,8 @@
         "hint": "Cheap/Free high-speed Whisper transcription."
       },
       "gemini": {
-        "label": "Google Gemini API Key:",
-        "hint": "Fast and free transcription via gemini-flash-lite."
+        "label": "Google Gemini API Key (Default Engine):",
+        "hint": "Powers AI captions, viral short detection, 3s hooks, YT/TikTok/IG metadata, and translation (auto-loads from local .env)."
       },
       "deepseek": {
         "label": "Deepseek / Groq API Key:",
@@ -940,6 +970,90 @@
     "toasts": {
       "saved": "Settings saved!",
       "reset": "Reset settings to defaults."
+    }
+  },
+  "studio": {
+    "title": "Viral Publish Studio",
+    "platforms": {
+      "youtube": "YouTube Shorts",
+      "youtubeShort": "YouTube",
+      "tiktok": "TikTok",
+      "instagram": "Instagram Reels",
+      "instagramShort": "Instagram"
+    },
+    "accounts": {
+      "title": "Connected Accounts",
+      "hint": "Sign in once per platform; browser sessions stay stored locally on your machine.",
+      "refresh": "Refresh",
+      "connected": "Connected",
+      "notConnected": "Not linked",
+      "connect": "Sign in",
+      "reconnect": "Re-login"
+    },
+    "scheduler": {
+      "title": "Drip-Feed Scheduler",
+      "hint": "Space out uploads automatically across YouTube, TikTok, and Instagram to protect reach.",
+      "intervalLabel": "Upload spacing",
+      "everyHours": "Every {n} hours",
+      "autoSchedule": "Auto-schedule pending"
+    },
+    "stats": {
+      "total": "{n} total",
+      "scheduled": "{n} scheduled",
+      "posted": "{n} posted"
+    },
+    "actions": {
+      "addVideo": "Add local video",
+      "clearPosted": "Clear posted",
+      "publishNow": "Publish now",
+      "edit": "Edit",
+      "publishAllFor": "Publish {title} to all enabled platforms",
+      "postSinglePlatform": "Post {title} to {platform}",
+      "editFor": "Edit metadata and schedule for {title}",
+      "openFolderFor": "Show {title} in folder",
+      "removeFor": "Remove {title} from publish queue"
+    },
+    "empty": {
+      "title": "Your Publish Queue is empty",
+      "subtitle": "Enable Faceless automation in Settings and download any video, or add a local vertical clip to generate Gemini titles, hooks, and drip-publish across YouTube Shorts, TikTok, and Instagram Reels.",
+      "configureFaceless": "Configure Faceless Automation"
+    },
+    "card": {
+      "viralScore": "{score}/100 Viral",
+      "scheduledFor": "Scheduled: {time}",
+      "unscheduled": "Ready to schedule or publish"
+    },
+    "status": {
+      "pending": "Ready",
+      "scheduled": "Scheduled",
+      "posting": "Uploading…",
+      "posted": "Posted",
+      "failed": "Failed",
+      "skipped": "Off"
+    },
+    "editor": {
+      "title": "Edit Multi-Platform Metadata & Schedule",
+      "regenerateAi": "Regenerate with Gemini",
+      "close": "Close editor",
+      "platforms": "Target platforms",
+      "hookLabel": "3-second viral hook text",
+      "youtubeTitle": "YouTube Shorts title",
+      "youtubeDescription": "YouTube Shorts description",
+      "tiktokCaption": "TikTok caption & hashtags",
+      "instagramCaption": "Instagram Reels caption & hashtags",
+      "scheduleAt": "Drip schedule time (optional)",
+      "clearSchedule": "Clear",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "added": "Clip added to Publish Studio with Gemini metadata!",
+      "clearedPosted": "Cleared {n} posted clips.",
+      "scheduled": "Scheduled all pending clips spaced every {hours}h!",
+      "openingLogin": "Opening browser window — sign in to save your session.",
+      "connected": "Account session saved!",
+      "published": "Upload finished!",
+      "updated": "Metadata and schedule saved.",
+      "regenerated": "Generated fresh viral copy with Gemini!"
     }
   },
   "updater": {
