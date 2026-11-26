@@ -41,12 +41,8 @@ pub async fn run_ai_dubbing(
     translation_prompt.push_str(" CRITICAL: Completely rewrite the FIRST sentence/hook to be overwhelmingly engaging, controversial, or curiosity-inducing. It must stop scrollers instantly. Only rewrite the first 3 seconds, keep the rest as direct translation.");
   }
 
-  let translated_text = crate::ai::deepseek::generate_translation(
-    &ai.deepseek_api_key,
-    srt_content,
-    &translation_prompt,
-  )
-  .await?;
+  let translated_text =
+    crate::ai::generate_translation_auto(ai, srt_content, &translation_prompt).await?;
 
   // 2. Generate Dubbed Audio using VoxCPM
   // In a real implementation, we would loop through lines and sync,

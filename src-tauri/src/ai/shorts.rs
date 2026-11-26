@@ -1,12 +1,16 @@
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoSegment {
   pub start_time: String,
   pub end_time: String,
   pub virality_score: u8,
   pub title: String,
+  #[serde(default)]
+  pub hook_text: Option<String>,
+  #[serde(default)]
+  pub reason: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
